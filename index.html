@@ -1,9 +1,3 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>[hidden]{display:none!important}img{max-width:100%}body{margin:0}</style>
 <title>Rasmitra Growth Simulator</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,14 +106,11 @@ tr.faded td{color:var(--muted)}
 .grid-t td.cell{text-align:center;background:color-mix(in srgb,var(--teal) calc(var(--a)*45%),var(--bg))}
 .grid-t td.hit{outline:2px solid var(--fg);outline-offset:-2px;font-weight:700}
 </style>
-</head>
-<body>
-
 <div class="wrap">
   <header class="top">
     <div class="eyebrow">IIM Calcutta x Monitor Deloitte · The Growth Gambit · Round 1 companion</div>
     <h1>Rasmitra Growth Simulator<span class="dot">.</span></h1>
-    <p class="muted">Recommendation: launch <b>winter premixes</b> (Rasmitra Winter Warmers) for the first winter and <b>spices</b> (Swaad by Rasmitra) one quarter later. Volumes follow the team's top-down market model; unit economics, budget and working capital follow the team's bottom-up Excel model. Every input traces to case Exhibits 1 to 6 or is labelled as an estimate.</p>
+    <p class="muted">Recommendation: launch <b>winter premixes</b> (Rasmitra Winter Warmers) for the first winter and <b>spices</b> (sold as 'Swaad', with a small 'by Rasmitra' endorsement) one quarter later. Volumes follow the team's top-down market model; unit economics, budget and working capital follow the team's bottom-up Excel model. Every input traces to case Exhibits 1 to 6 or is labelled as an estimate.</p>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Simulator sections">
@@ -161,7 +152,7 @@ tr.faded td{color:var(--muted)}
   <section class="tab" id="grow" role="tabpanel" aria-labelledby="t-grow" hidden>
     <div class="row">
       <span class="note">Scenario</span><div class="seg" id="scSeg"><button data-v="Base" aria-pressed="true">Base</button><button data-v="Stretch">Stretch</button><button data-v="Downside">Downside</button></div>
-      <span class="note">Third category from FY23 (option, not in the recommendation)</span><div class="seg" id="thSeg"><button data-v="" aria-pressed="true">None</button><button data-v="rtc">RTC mixes</button><button data-v="pickles">Pickles</button></div>
+      <span class="note">Third category from FY23 (option, not in the recommendation; RTC first)</span><div class="seg" id="thSeg"><button data-v="" aria-pressed="true">None</button><button data-v="rtc">RTC mixes</button><button data-v="pickles">Pickles</button></div>
     </div>
     <p class="note" id="scNote"></p>
     <div class="kpis6" id="kpis"></div>
@@ -194,6 +185,16 @@ tr.faded td{color:var(--muted)}
   <!-- PACKS -->
   <section class="tab" id="packs" role="tabpanel" aria-labelledby="t-packs" hidden>
     <div class="grid g3" id="brandArch"></div>
+    <div class="panel"><h3>What consumers told us (2 focus groups, 11 consumers)</h3>
+      <p class="note">FGD 1: young working adults, ages 22-29. FGD 2: college students, ages 20-23. Nine people spoke, so read this as directional; homemaker and value-buyer interviews are still to come.</p>
+      <div class="scroll"><table>
+        <tr><th>Theme</th><th>What we heard</th><th>What we changed or confirmed</th></tr>
+        <tr><td><b>Brand stretch</b></td><td>"If they've always made sharbat, why would I buy garam masala from them?" (Pooja). "For drinks, yes. Makes sense" (Aditya).</td><td>Confirmed: mother brand on premixes. Changed: 'Swaad' leads the spice pack; 'by Rasmitra' shrinks to a small endorsement.</td></tr>
+        <tr><td><b>Trial</b></td><td>"Small trial pack is better" (Pooja). "Single sachet first", then a pack of ten (Riya).</td><td>Confirmed: ₹10 trial packs before ₹49/₹99 packs; campus sampling added.</td></tr>
+        <tr><td><b>Premix product</b></td><td>Premixes "usually too sweet" (Pooja). Ginger tea "especially in winter" (Riya); ₹15 sachet "fine" (Aditya).</td><td>Changed: low-sugar ginger-lemon variant; positioned for office, hostel room and winter.</td></tr>
+        <tr><td><b>Spices habit</b></td><td>Everest: "bas, aadat hai" (Pooja). "Don't need another masala brand unless it's doing something better" (Sneha).</td><td>Confirmed: plan only 3% share; kill the launch if repeat purchase is under 25%.</td></tr>
+        <tr><td><b>Ready-to-cook</b></td><td>First pick for 4 of 9 if they could try one product; "not everyone has a kitchen" (Riya).</td><td>Changed: RTC mixes move ahead of pickles for the FY23 third-category gate.</td></tr>
+      </table></div></div>
     <div class="panel"><div class="row" style="justify-content:space-between"><h3>Pack mock-ups: front and back</h3><div class="row"><button class="btn primary" id="sideF">Front</button><button class="btn" id="sideB">Back</button></div></div>
       <p class="note">Concept artwork for a fictional brand, used as research stimulus. SKUs and prices follow the team Excel model: a ₹10 trial pack and a ₹49 or ₹99 regular pack per product.</p>
       <div class="packs" id="packGrid"></div></div>
@@ -439,9 +440,9 @@ renderGrow();
 
 /* ---------- 4. PACKS ---------- */
 $('#brandArch').innerHTML = [
-  ['Rasmitra Winter Warmers', 'Mother brand · launch FY22 Q3', 'Ginger-lemon hot drink and badam-elaichi milk mix. Same shopper, shelf and distributor as our concentrates, selling Oct-Feb when concentrates do not.', 'var(--forest)'],
-  ['Swaad by Rasmitra', 'Endorsed sub-brand · launch FY22 Q4', 'Everyday sabzi masala and garam masala. The endorsement lends trust without stretching the mother brand into the kitchen.', 'var(--deep)'],
-  ['Option from FY23', 'Gated third category', 'Pickles (5% share, fragmented and regional) or RTC mixes (4% share). Only if both launches clear their test-market gates.', 'var(--teal)'],
+  ['Rasmitra Winter Warmers', 'Mother brand · launch FY22 Q3', 'Ginger-lemon hot drink (regular and low-sugar) and badam-elaichi milk mix. Focus groups trust the Rasmitra name for a winter drink. Same shopper, shelf and distributor as our concentrates, selling Oct-Feb when concentrates do not.', 'var(--forest)'],
+  ['Swaad', 'Sub-brand, small Rasmitra endorsement · launch FY22 Q4', 'Everyday sabzi masala and garam masala. Focus groups doubted a sharbat brand selling masala, so Swaad leads and 'by Rasmitra' stays small.', 'var(--deep)'],
+  ['Option from FY23', 'Gated third category', 'RTC mixes first (the focus-group favourite, 4% share), then pickles (5% share, fragmented). Only if both launches clear their test-market gates.', 'var(--teal)'],
 ].map(([t, k, d, c]) => `<div class="panel" style="border-top:5px solid ${c}"><span class="eyebrow">${k}</span><h3>${t}</h3><p style="font-size:14px">${d}</p></div>`).join('');
 const MOCK = [['ginger', 'Ginger-Lemon, 10 x 15 g', 'Premix · ₹99'], ['gintrial', 'Ginger-Lemon trial sachet', 'Premix · ₹10'], ['badam', 'Badam-Elaichi, 150 g', 'Premix · ₹99'], ['sabzi', 'Sabzi Masala, 50 g', 'Spices · ₹49'], ['garam', 'Garam Masala, 50 g', 'Spices · ₹49']];
 let side = 'front';
@@ -478,6 +479,3 @@ function runGates() {
 runGates();
 
 </script>
-
-</body>
-</html>
