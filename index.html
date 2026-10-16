@@ -90,301 +90,159 @@ svg text{font-family:var(--body)}
 footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<style>
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:820px){.flow{grid-template-columns:minmax(0,1fr)}}
+.step{border:1px solid var(--line);border-radius:6px;padding:10px;display:grid;gap:3px;background:var(--bg)}
+.step b{font-size:14px}.step span:last-child{font-size:12.5px;color:var(--muted)}
+.step.on{border:2px solid var(--fg)}
+.kpis6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+@media (max-width:980px){.kpis6{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.g2b{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+@media (max-width:820px){.g2b{grid-template-columns:minmax(0,1fr)}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:600 13px var(--body);background:var(--bg);color:var(--fg);border:0;padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:grid;border:1px solid var(--line);border-radius:6px;padding:5px 9px;background:var(--bg)}
+.chip b{font-family:var(--mono);font-size:13px}.chip small{font-size:11.5px;color:var(--muted)}
+.chip.res{border:2px solid var(--fg)}.x{color:var(--muted)}
+.ok{color:var(--deep)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+tr.faded td{color:var(--muted)}
+.grid-t td.cell{text-align:center;background:color-mix(in srgb,var(--teal) calc(var(--a)*45%),var(--bg))}
+.grid-t td.hit{outline:2px solid var(--fg);outline-offset:-2px;font-weight:700}
+</style>
 </head>
 <body>
 
-
 <div class="wrap">
   <header class="top">
-    <div class="eyebrow">IIM Calcutta x Monitor Deloitte · The Growth Gambit · Round 1 companion · Launch: Swaad by Rasmitra</div>
+    <div class="eyebrow">IIM Calcutta x Monitor Deloitte · The Growth Gambit · Round 1 companion</div>
     <h1>Rasmitra Growth Simulator<span class="dot">.</span></h1>
-    <p class="muted">Every number starts from case Exhibits 1 to 6. Our recommendation: launch one category, <b>spices &amp; masalas</b>, under the endorsed brand Swaad by Rasmitra, and reach 30% new-product revenue by FY24 within ₹75 Cr. Winter premixes and namkeen wait on the bench. Move the levers to test it.</p>
+    <p class="muted">Recommendation: launch <b>winter premixes</b> (Rasmitra Winter Warmers) for the first winter and <b>spices</b> (Swaad by Rasmitra) one quarter later. Volumes follow the team's top-down market model; unit economics, budget and working capital follow the team's bottom-up Excel model. Every input traces to case Exhibits 1 to 6 or is labelled as an estimate.</p>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Simulator sections">
     <button role="tab" id="t-screen" aria-controls="screen" aria-selected="true">1 · Where to play</button>
-    <button role="tab" id="t-money" aria-controls="money" aria-selected="false">2 · Revenue &amp; payback</button>
-    <button role="tab" id="t-packs" aria-controls="packs" aria-selected="false">3 · Products</button>
-    <button role="tab" id="t-gate" aria-controls="gate" aria-selected="false">4 · Stage-gate</button>
+    <button role="tab" id="t-grow" aria-controls="grow" aria-selected="false">2 · How much we can grow</button>
+    <button role="tab" id="t-true" aria-controls="true" aria-selected="false">3 · What has to be true</button>
+    <button role="tab" id="t-packs" aria-controls="packs" aria-selected="false">4 · Products</button>
+    <button role="tab" id="t-gate" aria-controls="gate" aria-selected="false">5 · Stage-gate</button>
   </nav>
 
-  <!-- ============ SCREEN ============ -->
+  <!-- SCREEN -->
   <section class="tab" id="screen" role="tabpanel" aria-labelledby="t-screen">
+    <div class="panel">
+      <h3>How the screen works</h3>
+      <div class="flow">
+        <div class="step"><span class="eyebrow">Start</span><b>Exhibit 5 longlist</b><span>8 categories</span></div>
+        <div class="step"><span class="eyebrow">Constraint</span><b>Distributor fit ≥ 4</b><span>Ambient kirana route, sells outside Mar-Jul, margin pays GT terms</span></div>
+        <div class="step"><span class="eyebrow">Constraint</span><b>Budget fit ≥ 4</b><span>Contract manufacturing available, low in-house capex</span></div>
+        <div class="step"><span class="eyebrow">Score</span><b>Size · growth · fit</b><span>Weights below; size on a log scale, growth linear</span></div>
+        <div class="step on"><span class="eyebrow">Order</span><b id="orderTxt"></b><span>Out: Staples, Namkeen, Juices &amp; RTD, Dairy desserts</span></div>
+      </div>
+    </div>
     <div class="grid g2">
       <div class="panel">
-        <h3>Criteria weights</h3>
-        <p class="note">Weights rescale to 100%. Scores use the bands in Exhibit 5 (1 to 5).</p>
-        <div id="weights" class="grid" style="gap:10px"></div>
-        <div class="row"><button class="btn" id="resetW">Reset to our weights</button></div>
+        <h3>Weights (points)</h3>
+        <div id="wts" class="grid" style="gap:10px"></div>
+        <div class="row"><button class="btn" data-w="35,35,15,15">Our metric</button><button class="btn" data-w="60,10,15,15">Size-led</button><button class="btn" data-w="10,60,15,15">Growth-led</button><button class="btn" data-w="20,20,30,30">Fit-led</button></div>
       </div>
       <div class="panel">
-        <div class="row" style="justify-content:space-between"><h3>Ranked longlist</h3><span class="note" id="wsum"></span></div>
-        <div class="scroll"><table id="screenT"></table></div>
-        <div class="callout" id="screenNote"></div>
-        <h3>One-launch test: can a single category carry ₹199 Cr?</h3><div class="scroll"><table id="oneTest"></table></div>
+        <h3>Ranking (score out of 5)</h3>
+        <div class="scroll"><table id="rankT"></table></div>
+        <div class="callout"><b>Why premixes over RTC mixes, though RTC scores higher.</b> RTC is bigger (₹9,800 Cr) and faster growing (17%), so it wins on size and growth. Premixes wins every Board-fit test: brand adjacency 4.6 vs 3.6, low capex, 42-50% gross margin, and it peaks Oct-Feb when our plant runs at 34%. Choosing it is a deliberate call on Tension 03 (adjacency over attractiveness). Namkeen is large and counter-seasonal but fails the budget constraint: it needs a plant.</div>
       </div>
+    </div>
+    <div class="panel"><h3>Board constraint check</h3><div class="scroll"><table id="consT"></table></div></div>
+  </section>
+
+  <!-- GROW -->
+  <section class="tab" id="grow" role="tabpanel" aria-labelledby="t-grow" hidden>
+    <div class="row">
+      <span class="note">Scenario</span><div class="seg" id="scSeg"><button data-v="Base" aria-pressed="true">Base</button><button data-v="Stretch">Stretch</button><button data-v="Downside">Downside</button></div>
+      <span class="note">Third category from FY23 (option, not in the recommendation)</span><div class="seg" id="thSeg"><button data-v="" aria-pressed="true">None</button><button data-v="rtc">RTC mixes</button><button data-v="pickles">Pickles</button></div>
+    </div>
+    <p class="note" id="scNote"></p>
+    <div class="kpis6" id="kpis"></div>
+    <div class="grid g2b">
+      <div class="panel"><h3>New-product revenue, FY21-FY24 (₹ Cr, net realisation)</h3><div id="revChart"></div></div>
+      <div class="panel"><h3>New-product share of revenue, all scenarios</h3><div id="shareChart"></div></div>
+    </div>
+    <div class="panel"><h3>How each category's revenue is built (FY24)</h3>
+      <p class="note">Revenue = market × organised share × our reach × net realisation × our share × scenario multiplier × launch ramp. FY22 and FY23 use those years' market and ramp. Core business grows at its FY18-21 rate of 4.8%; today's new products at 10%.</p>
+      <div id="chips" class="grid" style="gap:8px"></div></div>
+    <div class="grid g2">
+      <div class="panel"><h3>Revenue by line (₹ Cr)</h3><div class="scroll"><table id="lineT"></table></div></div>
+      <div class="panel"><h3>Incremental P&amp;L and cash (₹ Cr)</h3><div class="scroll"><table id="finT"></table></div>
+        <p class="note">Contribution margins from the team Excel model (spices 19.9%, premixes 25.6%, pickles 22.4%; RTC 22% team estimate). Programme spend per the Excel budget: A&amp;P 8/14/13, R&amp;D-QA 3/2/2, selling 1/2/2, capex 1/2/2. Working capital 6.4% of new-category sales. FY25E-FY26E: categories grow at market CAGR at full ramp, sustaining A&amp;P 6% of sales.</p></div>
     </div>
   </section>
 
-  <!-- ============ MONEY ============ -->
-  <section class="tab" id="money" role="tabpanel" aria-labelledby="t-money" hidden>
-    <div class="kpis" id="kpis"></div>
+  <!-- TRUE -->
+  <section class="tab" id="true" role="tabpanel" aria-labelledby="t-true" hidden>
     <div class="grid g2">
-      <div class="panel">
-        <h3>FY24 revenue by line (₹ Cr)</h3>
-        <div id="revSl" class="grid" style="gap:10px"></div>
-        <h3>Steady-state contribution margin</h3>
-        <div id="cmSl" class="grid" style="gap:10px"></div>
-        <h3>Programme &amp; risk</h3>
-        <div id="riskSl" class="grid" style="gap:10px"></div>
-        <div class="row"><button class="btn primary" id="base">Base case</button><button class="btn" id="down">Downside (65% of plan)</button></div>
-      </div>
-      <div class="grid" style="gap:16px;min-width:0">
-        <div class="panel"><h3>Revenue build and new-product share</h3><div id="revChart"></div></div>
-        <div class="panel"><h3>Cumulative net cash from the programme (₹ Cr)</h3><div id="cashChart"></div>
-          <p class="note">Net cash = incremental new-product contribution minus programme spend. FY25E assumes 20% growth on FY24 contribution and no further programme spend.</p></div>
-        <div class="panel"><h3>Unit economics &amp; velocity check (FY24)</h3><div class="scroll"><table id="ueT"></table></div>
-          <p class="note">Pack figures use the Exhibit 2 margin chain: MRP → retailer → distributor → net realisation. Q-com pack: 38% platform margin and 24% trade spend (Exhibit 3), 4% distributor service fee.</p></div>
-      </div>
+      <div class="panel"><h3>FY24 new-product share: reach × spices share</h3>
+        <p class="note">Spices and premixes only, base launch dates. Reach is the share of category sales passing through outlets we serve. Outlined cells reach the Board's 30%.</p>
+        <div class="scroll"><table id="gridT" class="grid-t"></table></div></div>
+      <div class="panel"><h3>Path from base case to 30%</h3><div id="bridge"></div>
+        <div class="callout" id="bridgeNote"></div></div>
     </div>
+    <div class="panel"><h3>What one point of spices share is worth in FY24</h3><p class="note">₹ Cr of net revenue per percentage point of our share of branded sales in reached outlets, base case.</p><div id="pointT"></div></div>
   </section>
 
-  <!-- ============ PACKS ============ -->
+  <!-- PACKS -->
   <section class="tab" id="packs" role="tabpanel" aria-labelledby="t-packs" hidden>
     <div class="grid g3" id="brandArch"></div>
-    <div class="panel"><div class="row" style="justify-content:space-between"><h3>Pack mock-ups: front and back</h3><div class="row"><button class="btn primary" id="sideF" aria-pressed="true">Front</button><button class="btn" id="sideB" aria-pressed="false">Back</button></div></div>
-      <p class="note">Concept artwork for a fictional brand, used as FGD stimulus. Backs carry ingredients, illustrative nutrition, MRP block, batch-testing promise, FSSAI and barcode placeholders. GT gets low-unit-price packs; Q-com gets the exclusive 500 g pouch so prices never sit side by side.</p>
+    <div class="panel"><div class="row" style="justify-content:space-between"><h3>Pack mock-ups: front and back</h3><div class="row"><button class="btn primary" id="sideF">Front</button><button class="btn" id="sideB">Back</button></div></div>
+      <p class="note">Concept artwork for a fictional brand, used as research stimulus. SKUs and prices follow the team Excel model: a ₹10 trial pack and a ₹49 or ₹99 regular pack per product.</p>
       <div class="packs" id="packGrid"></div></div>
+    <div class="panel"><h3>Unit economics per pack, general trade (₹)</h3><div class="scroll"><table id="ueT"></table></div>
+      <p class="note">From the team Excel model: GT partner margin 25% of MRP (Exhibit 3), trade spend 6.5% of net revenue, freight ₹1 per pack. On quick-commerce (38% margin, 24% trade spend) every trial pack loses money, so trial packs stay off Q-com.</p></div>
   </section>
 
-  <!-- ============ GATE ============ -->
+  <!-- GATE -->
   <section class="tab" id="gate" role="tabpanel" aria-labelledby="t-gate" hidden>
-    <div class="panel">
-      <h3>6-month launch engine (was ~11 months, peers 6 to 8)</h3>
-      <div class="gates" id="gates"></div>
-      <div id="gateDetail" class="callout"></div>
-    </div>
+    <div class="panel"><h3>6-month launch engine (was ~11 months; peers 6 to 8)</h3><div class="gates" id="gates"></div><div id="gateDetail" class="callout"></div></div>
     <div class="grid g2">
-      <div class="panel"><h3>Run a launch through the gates</h3>
-        <p class="note">Enter the evidence a launch team would bring to each Launch Council. The first failed gate kills the launch and releases its remaining budget.</p>
-        <div id="testSl" class="grid" style="gap:10px"></div>
-        <div class="row"><button class="btn" data-preset="ok">Example: chai masala</button><button class="btn" data-preset="iced">Replay: FY21 iced tea premix</button><button class="btn" data-preset="aloe">Replay: FY18 aloe vera RTD</button></div>
-      </div>
+      <div class="panel"><h3>Run a launch through the gates</h3><p class="note">The first failed gate kills the launch and releases its remaining budget.</p><div id="testSl" class="grid" style="gap:10px"></div>
+        <div class="row"><button class="btn" data-preset="ok">Example: ginger-lemon premix</button><button class="btn" data-preset="iced">Replay: FY21 iced tea premix</button><button class="btn" data-preset="aloe">Replay: FY18 aloe vera RTD</button></div></div>
       <div class="panel"><h3>Council verdict</h3><div id="verdict" class="grid" style="gap:8px"></div></div>
     </div>
   </section>
 
-  <footer>Sources: The Growth Gambit case, Exhibits 1 to 6 (company data governs). Deloitte-FICCI (Oct 2024), SPURring growth in FMCG, retail and e-commerce. Bain &amp; Co. (2006), Growing beyond your core in retail. Deloitte Insights (2019), Widening the lens. All brand names and packs are fictional concept work for the competition.</footer>
+  <footer>Sources: The Growth Gambit case, Exhibits 1 to 6 (company data governs). Team top-down category model ("Rasmitra category screen"); team bottom-up Excel model (Rasmitra_Financial_Model). Deloitte-FICCI (Oct 2024). All brand names and packs are fictional concept work; demand figures are estimates until validated in pilots.</footer>
 </div>
 
 <script>
-const $ = s => document.querySelector(s);
-const fmt = (x, d = 0) => x.toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
-
-/* ---------- tabs ---------- */
-const tabs = [...document.querySelectorAll('[role=tab]')];
-function show(id) {
-  tabs.forEach(t => { const on = t.getAttribute('aria-controls') === id; t.setAttribute('aria-selected', on); document.getElementById(t.getAttribute('aria-controls')).hidden = !on; });
-  try { localStorage.setItem('rsim-tab', id); } catch (e) {}
-}
-tabs.forEach(t => t.addEventListener('click', () => show(t.getAttribute('aria-controls'))));
-const hashTab = (location.hash || '').slice(1);
-let saved = null; try { saved = localStorage.getItem('rsim-tab'); } catch (e) {}
-show(['screen','money','packs','gate'].includes(hashTab) ? hashTab : (saved || 'screen'));
-
-function slider(host, key, label, min, max, step, val, unit, onIn) {
-  const id = 's-' + key;
-  const d = document.createElement('div'); d.className = 'slider';
-  d.innerHTML = `<label for="${id}">${label}</label><output for="${id}" id="${id}-o"></output><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}">`;
-  host.appendChild(d);
-  const inp = d.querySelector('input'), out = d.querySelector('output');
-  const upd = () => { out.textContent = inp.value + unit; onIn(+inp.value); };
-  inp.addEventListener('input', upd); out.textContent = val + unit;
-  return { set(v) { inp.value = v; out.textContent = v + unit; }, get() { return +inp.value; } };
-}
-
-/* ---------- 1. SCREEN ---------- */
-const CATS = [
-  { n: "Blended spices & masalas", size: 78000, cagr: 11, org: 42, gm: 37, m3p: "High", capex: "Low", adj: 4.4, cs: "Yes", route: "make", pick: "launch" },
-  { n: "Instant beverage premixes (winter)", size: 6400, cagr: 14, org: 55, gm: 46, m3p: "High", capex: "Low", adj: 4.6, cs: "Yes", route: "make", pick: "bench" },
-  { n: "Namkeen & savoury snacks", size: 46000, cagr: 12, org: 48, gm: 31, m3p: "Medium", capex: "High", adj: 2.9, cs: "Yes", route: "buy", pick: "bench" },
-  { n: "Pickles, chutneys & condiments", size: 12500, cagr: 13, org: 38, gm: 41.5, m3p: "High", capex: "Low", adj: 4.1, cs: "Yes", route: "buy", pick: "later" },
-  { n: "Ready-to-cook & instant mixes", size: 9800, cagr: 17, org: 61, gm: 44, m3p: "High", capex: "Medium", adj: 3.6, cs: "Yes", route: "buy", pick: "later" },
-  { n: "Packaged juices & RTD", size: 14700, cagr: 9, org: 72, gm: 25, m3p: "Medium", capex: "High", adj: 4.7, cs: "No", route: "make", pick: "out" },
-  { n: "Atta, rice & packaged staples", size: 240000, cagr: 8, org: 18, gm: 6, m3p: "Medium", capex: "High", adj: 3.9, cs: "Partly", route: "make", pick: "out" },
-  { n: "Dairy-based desserts", size: 8900, cagr: 15, org: 26, gm: 28.5, m3p: "Low", capex: "High", adj: 2.4, cs: "No", route: "make", pick: "out" },
-];
-const WDEF = { size: 10, growth: 10, gm: 15, org: 5, adj: 20, m3p: 10, capex: 10, season: 20 };
-const WLAB = { size: "Market size", growth: "3-yr growth", gm: "Gross margin", org: "Organised headroom (35-60% best)", adj: "Brand adjacency", m3p: "3P manufacturing availability", capex: "Capex on chosen route", season: "Counter-seasonal to core" };
-const lvl = { High: 5, Medium: 3, Low: 1 }, inv = { Low: 5, Medium: 3, High: 1 }, csm = { Yes: 5, Partly: 3, No: 1 };
-const sc = {
-  size: x => x >= 40000 ? 5 : x >= 12000 ? 4 : x >= 8000 ? 3 : x >= 5000 ? 2 : 1,
-  growth: x => x >= 15 ? 5 : x >= 13 ? 4 : x >= 11 ? 3 : x >= 9 ? 2 : 1,
-  gm: x => x >= 42 ? 5 : x >= 37 ? 4 : x >= 30 ? 3 : x >= 22 ? 2 : 1,
-  org: x => (x >= 35 && x <= 60) ? 5 : x < 35 ? 3 : 2,
-};
-const W = { ...WDEF }; const wS = {};
-Object.keys(WDEF).forEach(k => wS[k] = slider($('#weights'), 'w' + k, WLAB[k], 0, 40, 1, WDEF[k], '', v => { W[k] = v; renderScreen(); }));
-$('#resetW').onclick = () => { Object.keys(WDEF).forEach(k => { W[k] = WDEF[k]; wS[k].set(WDEF[k]); }); CATS.forEach((c, i) => c.route = ['make','make','buy','buy','buy','make','make','make'][i]); renderScreen(); };
-function scoreCat(c) {
-  const s = { size: sc.size(c.size), growth: sc.growth(c.cagr), gm: sc.gm(c.gm), org: sc.org(c.org), adj: c.adj, m3p: lvl[c.m3p], capex: c.route === 'buy' ? (c.m3p === 'Low' ? 1 : 5) : inv[c.capex], season: csm[c.cs] };
-  const tw = Object.values(W).reduce((a, b) => a + b, 0) || 1;
-  return { s, tot: Object.keys(W).reduce((a, k) => a + s[k] * W[k], 0) / tw };
-}
-function renderScreen() {
-  const tw = Object.values(W).reduce((a, b) => a + b, 0);
-  $('#wsum').textContent = `Raw weight total ${tw} → rescaled to 100%`;
-  const rows = CATS.map(c => ({ c, ...scoreCat(c) })).sort((a, b) => b.tot - a.tot);
-  const pill = p => p === 'launch' ? '<span class="pill p-in">LAUNCH</span>' : p === 'bench' ? '<span class="pill p-bench">BENCH FY25</span>' : p === 'later' ? '<span class="pill p-bench">LATER</span>' : '<span class="pill p-out">REFUSE</span>';
-  $('#screenT').innerHTML = `<tr><th>#</th><th>Category</th><th class="n">Score</th><th></th><th>Route</th><th>Our call</th></tr>` +
-    rows.map((r, i) => `<tr><td>${i + 1}</td><td>${r.c.n}</td><td class="n"><b>${r.tot.toFixed(2)}</b></td><td style="width:22%"><div class="bar"><i style="width:${r.tot / 5 * 100}%"></i></div></td>
-    <td><select aria-label="Route for ${r.c.n}" data-i="${CATS.indexOf(r.c)}"><option value="make"${r.c.route === 'make' ? ' selected' : ''}>Make</option><option value="buy"${r.c.route === 'buy' ? ' selected' : ''}>Co-pack</option></select></td><td>${pill(r.c.pick)}</td></tr>`).join('');
-  $('#screenT').querySelectorAll('select').forEach(s => s.onchange = e => { CATS[+e.target.dataset.i].route = e.target.value; renderScreen(); });
-  const nk = rows.findIndex(r => r.c.n.startsWith('Namkeen')) + 1;
-  $('#screenNote').innerHTML = `<b>Why one launch, and why spices.</b> The new category has to deliver about ₹199 Cr in FY24 (₹274 Cr target less ₹75 Cr from existing NPD and core extensions). Spices needs only 0.19% of its FY24 market and about 1.5 packs per outlet a week; winter premixes would need 2.1% share inside a 22-week season, and namkeen (rank #${nk} here) 3 packs a week at a 16% margin. Spices also runs on our idle powder lines. Premixes and namkeen stay on the bench for FY25 if the launch clears its gates.`;
-  $('#oneTest').innerHTML = `<tr><th>Shortlisted</th><th class="n">FY24 market</th><th class="n">Share for ₹199 Cr</th><th class="n">Packs/outlet/wk</th><th class="n">FY24 contribution</th></tr>
-  <tr><td><b>Spices &amp; masalas</b></td><td class="n">₹1.07 L Cr</td><td class="n"><b>0.19%</b></td><td class="n">1.5</td><td class="n">₹44 Cr</td></tr>
-  <tr><td>Winter premixes</td><td class="n">₹9,482 Cr</td><td class="n">2.1%</td><td class="n">2.4 (22 wks)</td><td class="n">₹58 Cr</td></tr>
-  <tr><td>Namkeen</td><td class="n">₹64,627 Cr</td><td class="n">0.31%</td><td class="n">3.0</td><td class="n">₹32 Cr</td></tr>`;
-}
-renderScreen();
-
-/* ---------- 2. MONEY ---------- */
-const LEG = [536.48, 568.67, 602.79, 638.96];
-const LINES = [
-  { k: "exist", n: "Existing NPD", fy24: 40, ph: [27 / 40, 33 / 40], cm: 24, launch: 20 },
-  { k: "ext", n: "Core extensions", fy24: 35, ph: [10 / 35, 22 / 35], cm: 26, launch: 22 },
-  { k: "t1", n: "Spices T1: drink & snack masalas", fy24: 55, ph: [12 / 55, 35 / 55], cm: 24, launch: 22 },
-  { k: "t2", n: "Spices T2: kitchen blends", fy24: 110, ph: [0, 40 / 110], cm: 21, launch: 23 },
-  { k: "t3", n: "Spices T3: regional & premium", fy24: 35, ph: [0, 0], cm: 22, launch: 24 },
-  { k: "pre", n: "Bench: winter premixes (pull into FY24)", fy24: 0, ph: [0, 0], cm: 29, launch: 24 },
-  { k: "nam", n: "Bench: namkeen (pull into FY24)", fy24: 0, ph: [0, 0], cm: 16, launch: 24 },
-];
-const BASE_NP = 23.52;
-const P = { leg: 6, budget: 75, mult: 100, cmcut: 0 };
-const rS = {}, cS = {}, kS = {};
-LINES.forEach(l => {
-  rS[l.k] = slider($('#revSl'), 'r' + l.k, l.n, 0, 160, 5, l.fy24, '', v => { l.fy24 = v; renderMoney(); });
-  cS[l.k] = slider($('#cmSl'), 'c' + l.k, l.n, 5, 40, 1, l.cm, '%', v => { l.cm = v; renderMoney(); });
-});
-kS.leg = slider($('#riskSl'), 'leg', 'Legacy core growth p.a.', 0, 12, 0.5, 6, '%', v => { P.leg = v; renderMoney(); });
-kS.budget = slider($('#riskSl'), 'bud', 'Programme spend (₹ Cr, 3 yrs)', 40, 100, 5, 75, '', v => { P.budget = v; renderMoney(); });
-kS.mult = slider($('#riskSl'), 'mult', 'Delivery vs plan', 40, 120, 5, 100, '%', v => { P.mult = v; renderMoney(); });
-kS.cmcut = slider($('#riskSl'), 'cmcut', 'Margin slippage (pp)', 0, 8, 1, 0, ' pp', v => { P.cmcut = v; renderMoney(); });
-$('#base').onclick = () => { kS.mult.set(100); P.mult = 100; kS.cmcut.set(0); P.cmcut = 0; kS.budget.set(75); P.budget = 75; renderMoney(); };
-$('#down').onclick = () => { kS.mult.set(65); P.mult = 65; kS.cmcut.set(3); P.cmcut = 3; kS.budget.set(60); P.budget = 60; renderMoney(); };
-
-function model() {
-  const m = P.mult / 100;
-  const leg = [536.48, ...[1, 2, 3].map(i => 536.48 * Math.pow(1 + P.leg / 100, i))];
-  const rev = LINES.map(l => {
-    const v = [l.k === 'exist' ? BASE_NP : 0, l.fy24 * l.ph[0], l.fy24 * l.ph[1], l.fy24];
-    return v.map((x, i) => i === 0 ? x : (l.k === 'exist' ? x : x * m));
-  });
-  const npt = [0, 1, 2, 3].map(i => rev.reduce((a, r) => a + r[i], 0));
-  const tot = npt.map((x, i) => x + leg[i]);
-  const contrib = [1, 2, 3].map(i => LINES.reduce((a, l, j) => {
-    const age = 21 + i - l.launch; const adj = l.k === 'exist' ? 0 : (age === 0 ? -12 : age === 1 ? -5 : 0);
-    return a + rev[j][i] * (l.cm + adj - (l.k === 'exist' ? 0 : P.cmcut)) / 100; }, 0));
-  const inc = contrib.map(c => c - BASE_NP * .24);
-  const spend = [30, 28, 17].map(x => x / 75 * P.budget);
-  let cum = 0; const cf = [];
-  inc.forEach((x, i) => { cum += x - spend[i]; cf.push(cum); });
-  const fy25 = inc[2] * 1.2; cf.push(cf[2] + fy25);
-  let pay = null;
-  if (cf[0] >= 0) pay = 12 * (1 - (cf[0]) / Math.max(inc[0] - spend[0], .01));
-  else if (cf[1] >= 0) pay = 12 + 12 * (-cf[0]) / Math.max(inc[1] - spend[1], .01);
-  else if (cf[2] >= 0) pay = 24 + 12 * (-cf[1]) / Math.max(inc[2] - spend[2], .01);
-  else if (cf[3] >= 0) pay = 36 + 12 * (-cf[2]) / Math.max(fy25, .01);
-  const fixed = 69.4 * Math.pow(1.03, 3);
-  const legC = leg[3] * (128.2 - BASE_NP * .24) / 536.48;
-  const ebitda = legC - fixed + contrib[2] - npt[3] * .08 - spend[2] * .88;
-  return { leg, rev, npt, tot, cf, pay, ebitda, contrib };
-}
-function chartRev(M) {
-  const w = 560, h = 250, l = 46, b = 28, t = 14, max = Math.max(1000, Math.ceil(Math.max(...M.tot) / 100) * 100);
-  const cols = ['var(--line)', 'var(--muted)', 'var(--teal)', 'var(--forest)', 'var(--deep)', 'var(--green)', '#c8901a', '#d1621b'];
-  const series = [M.leg, ...M.rev]; const names = ['Legacy core', ...LINES.map(x => x.n)];
-  const y = v => t + (h - t - b) * (1 - v / max), bw = 64;
-  let s = `<svg viewBox="0 0 ${w} ${h + 76}" role="img" aria-label="Stacked revenue FY21 to FY24">`;
-  for (let g = 0; g <= max; g += 200) s += `<line x1="${l}" x2="${w - 10}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)" stroke-width="1"/><text x="${l - 6}" y="${y(g) + 4}" font-size="11" text-anchor="end" fill="var(--muted)">${g}</text>`;
-  ['FY21', 'FY22', 'FY23', 'FY24'].forEach((yr, i) => {
-    const x = l + 30 + i * 122; let acc = 0;
-    series.forEach((ser, j) => { const v = ser[i]; if (v > 0) { s += `<rect x="${x}" y="${y(acc + v)}" width="${bw}" height="${y(acc) - y(acc + v)}" fill="${cols[j]}"/>`; } acc += v; });
-    s += `<text x="${x + bw / 2}" y="${y(acc) - 18}" font-size="12" font-weight="700" text-anchor="middle" fill="var(--fg)">₹${fmt(acc)}</text>`;
-    s += `<text x="${x + bw / 2}" y="${y(acc) - 4}" font-size="11" text-anchor="middle" fill="var(--deep)" font-weight="700">${(M.npt[i] / M.tot[i] * 100).toFixed(1)}% NP</text>`;
-    s += `<text x="${x + bw / 2}" y="${h - 8}" font-size="12" text-anchor="middle" fill="var(--fg)">${yr}</text>`;
-  });
-  names.forEach((n, j) => { const x = 8 + (j % 2) * 280, yy = h + 10 + Math.floor(j / 2) * 16; s += `<rect x="${x}" y="${yy}" width="10" height="10" fill="${cols[j]}"/><text x="${x + 15}" y="${yy + 9}" font-size="11" fill="var(--fg)">${n}</text>`; });
-  return s + '</svg>';
-}
-function chartCash(M) {
-  const w = 560, h = 230, l = 40, r = 20, t = 24, b = 44, vals = M.cf, mn = Math.min(-40, ...vals), mx = Math.max(40, ...vals);
-  const y = v => t + (h - t - b) * (mx - v) / (mx - mn), x = i => l + i * ((w - l - r) / 3);
-  let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Cumulative net cash">`;
-  s += `<line x1="${l}" x2="${w - r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)" stroke-dasharray="4 3"/>`;
-  s += `<text x="${l - 6}" y="${y(0) + 4}" font-size="11" text-anchor="end" fill="var(--muted)">0</text>`;
-  s += `<path d="M${vals.map((v, i) => x(i) + ',' + y(v)).join(' L')} L${x(3)},${y(0)} L${x(0)},${y(0)} Z" fill="var(--green)" opacity=".18"/>`;
-  s += `<polyline points="${vals.map((v, i) => x(i) + ',' + y(v)).join(' ')}" fill="none" stroke="var(--deep)" stroke-width="2.5"/>`;
-  vals.forEach((v, i) => { s += `<circle cx="${x(i)}" cy="${y(v)}" r="4.5" fill="${v < 0 ? 'var(--bad)' : 'var(--deep)'}"/><text x="${x(i)}" y="${y(v) + (v < 0 ? 18 : -9)}" font-size="12" font-weight="700" text-anchor="middle" fill="var(--fg)">${v >= 0 ? '+' : ''}${fmt(v)}</text><text x="${x(i)}" y="${h - 6}" font-size="12" text-anchor="middle" fill="var(--fg)">${['FY22', 'FY23', 'FY24', 'FY25E'][i]}</text>`; });
-  return s + '</svg>';
-}
-const UE = [
-  { n: "₹10 sachet, 15 g (GT)", mrp: 10, rm: .20, dm: .09, gm: .34, ox: .16 },
-  { n: "100 g carton, ₹70 (GT/MT)", mrp: 70, rm: .20, dm: .09, gm: .38, ox: .16 },
-  { n: "500 g pouch, ₹299 (Q-com)", mrp: 299, rm: .38, dm: .04, gm: .42, ox: .24 },
-];
-function renderMoney() {
-  const M = model();
-  const np = M.npt[3] / M.tot[3] * 100;
-  $('#kpis').innerHTML = [
-    [`₹${fmt(M.tot[3])} Cr`, 'FY24 revenue (Board aim ~₹900 Cr)', M.tot[3] >= 880 ? 'ok' : 'bad'],
-    [`${np.toFixed(1)}%`, 'New-product share FY24 (target 30%)', np >= 29.5 ? 'ok' : 'bad'],
-    [M.pay ? `~${Math.round(M.pay)} mo` : '> 48 mo', 'Payback on programme spend', M.pay && M.pay <= 40 ? 'ok' : 'bad'],
-    [`₹${fmt(M.ebitda)} Cr`, `EBITDA FY24 (${(M.ebitda / M.tot[3] * 100).toFixed(1)}%; FY21 ₹58.8 Cr)`, M.ebitda / M.tot[3] >= .1 ? 'ok' : 'bad'],
-  ].map(([v, l, c]) => `<div class="kpi ${c}"><b>${v}</b><span>${l}</span></div>`).join('');
-  $('#revChart').innerHTML = chartRev(M);
-  $('#cashChart').innerHTML = chartCash(M);
-  const sp = ['t1', 't2', 't3'].reduce((a, k) => a + LINES.find(x => x.k === k).fy24, 0) * (P.mult / 100);
-  const vel = sp * 1e7 * .6 / 51.0 / 3.0e5 / 52;
-  $('#ueT').innerHTML = `<tr><th>Pack</th><th class="n">MRP</th><th class="n">Net real.</th><th class="n">COGS</th><th class="n">Contrib.</th></tr>` + UE.map(u => {
-    const nr = u.mrp * (1 - u.rm) * (1 - u.dm), cogs = nr * (1 - u.gm), co = nr - cogs - nr * u.ox;
-    return `<tr><td>${u.n}</td><td class="n">${u.mrp}</td><td class="n">${nr.toFixed(1)}</td><td class="n">${cogs.toFixed(1)}</td><td class="n">${co.toFixed(1)} (${(co / nr * 100).toFixed(0)}%)</td></tr>`;
-  }).join('') + `<tr><td colspan="4"><b>Velocity check:</b> spices FY24 ₹${fmt(sp)} Cr, 60% via GT, 3.0 lakh stocking outlets, in 100 g equivalents</td><td class="n"><b>${vel.toFixed(1)}</b>/wk ${vel > 3 ? '<span class="pill p-out">stretch</span>' : '<span class="pill p-in">realistic</span>'}</td></tr>`;
-}
-renderMoney();
-
-/* ---------- 3. PACKS ---------- */
-$('#brandArch').innerHTML = [
-  ['T1 · Drink & snack masalas', 'Launch FY22 H2 · ₹55 Cr by FY24', 'Chai, kadha, jaljeera, shikanji, chaat. The bridge from our drinks: the masala behind the sharbat and the chai. ₹5/₹10 sachets lead trial.', 'var(--forest)'],
-  ['T2 · Kitchen blends', 'FY23 · ₹110 Cr by FY24', 'Garam masala, kitchen king, chole, pav bhaji, sabzi, sambhar, biryani. The volume engine, in 50 g/100 g cartons and Q-com 500 g pouches.', 'var(--deep)'],
-  ['T3 · Regional & premium', 'FY24 · ₹35 Cr', 'Rajasthani, Kashmiri, Chettinad blends and a whole-spice premium range for MT and Q-com. Higher price per gram, tested before scale.', 'var(--teal)'],
-].map(([t, k, d, c]) => `<div class="panel" style="border-top:5px solid ${c}"><span class="eyebrow">${k}</span><h3>${t}</h3><p style="font-size:14px">${d}</p></div>`).join('');
-
-
 const D = "Poppins, Arial, sans-serif", B = "Open Sans, Arial, sans-serif", S = "Lora, Georgia, serif", H = "Noto Sans Devanagari, sans-serif";
 
 const PKD = [
-  { id: "chai", name: "Chai Masala", hi: "चाय मसाला", tier: "Drink masala", fmt: "carton", net: "100 g", mrp: "70.00", col: "#7a3b12", col2: "#c8901a", art: "cup",
-    claim: ["Brews 50 cups", "No added colour", "Lab-tested every batch"],
-    ingr: "Dry ginger (32%), cardamom (18%), black pepper (16%), cinnamon (14%), clove (10%), nutmeg (6%), bay leaf (4%).",
-    use: "Add 1/4 tsp per cup to boiling water with tea leaves. Simmer 1 min, add milk and sugar.",
-    nut: [["Energy", "330 kcal"], ["Protein", "9.0 g"], ["Carbohydrate", "60.0 g"], ["  of which sugars", "3.0 g"], ["Total fat", "6.0 g"], ["Sodium", "30 mg"]] },
-  { id: "garam", name: "Garam Masala", hi: "गरम मसाला", tier: "Kitchen blend", fmt: "carton", net: "100 g", mrp: "70.00", col: "#9c2a1e", col2: "#e0a33a", art: "spice",
+  { id: "sabzi", cat: "sp", name: "Sabzi Masala", hi: "सब्ज़ी मसाला", tier: "Everyday spice", fmt: "pouch", net: "50 g", mrp: "49.00", col: "#046a38", col2: "#e0a33a", art: "pan",
+    claim: ["For every dry sabzi", "No added colour", "Lab-tested every batch"],
+    ingr: "Coriander (26%), red chilli (16%), turmeric (12%), cumin (11%), dried mango (8%), dried fenugreek leaves (7%), dry ginger (6%), black pepper (5%), iodised salt (5%), clove (2%), cardamom (2%).",
+    use: "Add 1 tsp for every 250 g of vegetables after the onions soften. Cook 2 minutes.",
+    nut: [["Energy", "340 kcal"], ["Protein", "12.0 g"], ["Carbohydrate", "48.0 g"], ["  of which sugars", "3.0 g"], ["Total fat", "11.0 g"], ["Sodium", "1,950 mg"]] },
+  { id: "garam", cat: "sp", name: "Garam Masala", hi: "गरम मसाला", tier: "Everyday spice", fmt: "pouch", net: "50 g", mrp: "49.00", col: "#9c2a1e", col2: "#e0a33a", art: "spice",
     claim: ["12 whole spices", "No MSG", "Lab-tested every batch"],
     ingr: "Coriander (28%), cumin (20%), black pepper (12%), cardamom (9%), cinnamon (8%), clove (7%), bay leaf (5%), dry ginger (4%), nutmeg (3%), mace (2%), star anise (1%), caraway (1%).",
     use: "Add 1 tsp to curries and dals in the last 2 minutes of cooking for full aroma.",
     nut: [["Energy", "380 kcal"], ["Protein", "13.0 g"], ["Carbohydrate", "45.0 g"], ["  of which sugars", "2.0 g"], ["Total fat", "15.0 g"], ["Sodium", "80 mg"]] },
-  { id: "jaljeera", name: "Jaljeera", hi: "जलजीरा", tier: "Drink masala, ₹10 sachet", fmt: "sachet", net: "15 g", mrp: "10.00", col: "#0f7a5c", col2: "#86bc25", art: "glass",
-    claim: ["Makes 5 glasses", "Real mint & amchur"],
-    ingr: "Black salt, cumin, dried mango (amchur), mint leaves, black pepper, dry ginger, iodised salt, citric acid (INS 330).",
-    use: "Mix 1 tsp in a glass of chilled water. Stir, add ice and lemon.",
-    nut: [["Energy", "190 kcal"], ["Protein", "4.0 g"], ["Carbohydrate", "38.0 g"], ["  of which sugars", "5.0 g"], ["Total fat", "2.0 g"], ["Sodium", "12,500 mg"]] },
-  { id: "kking", name: "Kitchen King", hi: "किचन किंग", tier: "Kitchen blend, Q-com 500 g", fmt: "pouch", net: "500 g", mrp: "299.00", col: "#046a38", col2: "#86bc25", art: "pan",
-    claim: ["Family pack, resealable", "No added colour", "Lab-tested every batch"],
-    ingr: "Coriander (25%), red chilli (18%), turmeric (12%), cumin (11%), dried fenugreek leaves (8%), dry ginger (6%), black pepper (5%), mustard (5%), cardamom (4%), clove (3%), nutmeg (2%), salt (1%).",
-    use: "Use 1 to 1.5 tsp for every 500 g of vegetables, paneer or dal. Add with tomatoes.",
-    nut: [["Energy", "340 kcal"], ["Protein", "12.0 g"], ["Carbohydrate", "48.0 g"], ["  of which sugars", "3.0 g"], ["Total fat", "11.0 g"], ["Sodium", "60 mg"]] },
+  { id: "ginger", cat: "pm", mb: true, name: "Ginger-Lemon", hi: "अदरक-नींबू", tier: "Winter hot drink", fmt: "carton", net: "10 x 15 g", mrp: "99.00", col: "#b8560f", col2: "#ffd23f", art: "cup",
+    claim: ["Just add hot water", "10 sachets inside", "Real ginger & honey"],
+    ingr: "Sugar, dehydrated ginger (12%), lemon juice powder (8%), honey powder (5%), tulsi extract, black pepper, acidity regulator (INS 330).",
+    use: "Empty one sachet into a cup. Add 150 ml hot water and stir. Best enjoyed warm.",
+    nut: [["Energy", "380 kcal"], ["Protein", "0.5 g"], ["Carbohydrate", "94.0 g"], ["  of which sugars", "85.0 g"], ["Total fat", "0.2 g"], ["Sodium", "40 mg"]] },
+  { id: "badam", cat: "pm", mb: true, name: "Badam-Elaichi", hi: "बादाम-इलायची", tier: "Winter milk mix", fmt: "pouch", net: "150 g", mrp: "99.00", col: "#7a3b12", col2: "#e8c27a", art: "cup",
+    claim: ["Mix in hot milk", "12% real almond", "Saffron & cardamom"],
+    ingr: "Sugar, almond powder (12%), milk solids (10%), cardamom (2%), saffron (0.05%), turmeric, permitted natural colour (INS 160b).",
+    use: "Stir 2 tsp (15 g) into a cup of hot milk. Sweetened, no extra sugar needed.",
+    nut: [["Energy", "420 kcal"], ["Protein", "8.0 g"], ["Carbohydrate", "72.0 g"], ["  of which sugars", "60.0 g"], ["Total fat", "11.0 g"], ["Sodium", "120 mg"]] },
+  { id: "gintrial", cat: "pm", mb: true, name: "Ginger-Lemon", hi: "अदरक-नींबू", tier: "Trial sachet", fmt: "sachet", net: "15 g", mrp: "10.00", col: "#b8560f", col2: "#ffd23f", art: "cup",
+    claim: ["1 warm cup", "Just add hot water"],
+    ingr: "Sugar, dehydrated ginger (12%), lemon juice powder (8%), honey powder (5%), tulsi extract, black pepper, acidity regulator (INS 330).",
+    use: "Empty into a cup, add 150 ml hot water, stir.",
+    nut: [["Energy", "380 kcal"], ["Protein", "0.5 g"], ["Carbohydrate", "94.0 g"], ["  of which sugars", "85.0 g"], ["Total fat", "0.2 g"], ["Sodium", "40 mg"]] },
 ];
 
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -401,14 +259,15 @@ function art(kind, cx, cy, c1, c2) {
   return `<g transform="translate(${cx},${cy})"><ellipse cx="0" cy="10" rx="92" ry="34" fill="#2b2b2b"/><ellipse cx="0" cy="2" rx="80" ry="26" fill="#d9822b"/>${[[-30, 0], [10, -8], [40, 6], [-5, 12], [25, 14]].map(([x, y]) => `<rect x="${x}" y="${y}" width="14" height="14" rx="3" fill="#f7f1e3"/>`).join("")}<circle cx="-40" cy="6" r="5" fill="${c2}"/><circle cx="55" cy="-4" r="5" fill="${c2}"/><rect x="88" y="0" width="70" height="10" rx="5" fill="#2b2b2b"/></g>`;
 }
 const brand = (x, y, light = true) => `<g transform="translate(${x},${y})"><circle cx="0" cy="0" r="22" fill="#86bc25"/><text x="0" y="7" font-family="${S}" font-size="22" font-weight="700" fill="#0f130e" text-anchor="middle">S</text><text x="32" y="2" font-family="${S}" font-size="28" font-weight="700" fill="${light ? "#fff" : "#0f130e"}">Swaad</text><text x="33" y="20" font-family="${B}" font-size="11" fill="${light ? "#fff" : "#0f130e"}" letter-spacing="1.5">BY RASMITRA</text></g>`;
+const brandR = (x, y) => `<g transform="translate(${x},${y})"><circle cx="0" cy="0" r="22" fill="#86bc25"/><text x="0" y="7" font-family="${S}" font-size="22" font-weight="700" fill="#0f130e" text-anchor="middle">R</text><text x="32" y="2" font-family="${S}" font-size="26" font-weight="700" fill="#fff">Rasmitra</text><text x="33" y="20" font-family="${B}" font-size="11" fill="#fff" letter-spacing="1.5">WINTER WARMERS</text></g>`;
 const vegMark = (x, y) => `<rect x="${x}" y="${y}" width="22" height="22" fill="#fff" stroke="#1b8f2a" stroke-width="2.5"/><circle cx="${x + 11}" cy="${y + 11}" r="6" fill="#1b8f2a"/>`;
 
 function front(p) {
   const top = p.fmt === "pouch" ? 80 : 60;
   let s = shape(p.fmt, p.col);
   s += `<rect x="${p.fmt === "sachet" ? 70 : 40}" y="${top + 268}" width="${p.fmt === "sachet" ? 260 : 320}" height="120" fill="#f7f1e3"/>`;
-  s += brand(p.fmt === "sachet" ? 112 : 92, top + 30);
-  s += `<text x="200" y="${top + 100}" font-family="${D}" font-size="${p.name.length > 11 ? 38 : 44}" font-weight="700" fill="#fff" text-anchor="middle">${esc(p.name)}</text>`;
+  s += (p.mb ? brandR : brand)(p.fmt === "sachet" ? 112 : 92, top + 30);
+  s += `<text x="200" y="${top + 100}" font-family="${D}" font-size="${p.fmt === "sachet" && p.name.length > 9 ? 31 : p.name.length > 12 ? 34 : p.name.length > 11 ? 38 : 44}" font-weight="700" fill="#fff" text-anchor="middle">${esc(p.name)}</text>`;
   s += `<text x="200" y="${top + 132}" font-family="${H}" font-size="22" fill="${p.col2}" text-anchor="middle">${p.hi}</text>`;
   s += art(p.art, 200, top + (p.art === "cup" ? 206 : 222), p.col2, "#86bc25");
   p.claim.forEach((c, i) => { s += `<text x="200" y="${top + 300 + i * 26}" font-family="${B}" font-size="15" font-weight="700" fill="#1a1a1a" text-anchor="middle">${esc(c)}</text>`; });
@@ -435,8 +294,10 @@ function back(p) {
   p.nut.forEach(([a, b]) => { s += `<line x1="${L}" x2="${R}" y1="${y - 11}" y2="${y - 11}" stroke="#bbb"/><text x="${L + 6}" y="${y}" font-family="${B}" font-size="${fs}" xml:space="preserve">${a}</text><text x="${R - 6}" y="${y}" font-family="${B}" font-size="${fs}" text-anchor="end">${b}</text>`; y += 15; });
   y += 12;
   s += `<text x="${L}" y="${y}" font-family="${B}" font-size="${fs}" fill="#1a1a1a">Store in a cool, dry place. Use a dry spoon.</text>`; y += 14;
-  s += `<text x="${L}" y="${y}" font-family="${B}" font-size="${fs}" font-weight="700" fill="#046a38">Every batch tested at an NABL lab for</text>`; y += 13.5;
-  s += `<text x="${L}" y="${y}" font-family="${B}" font-size="${fs}" font-weight="700" fill="#046a38">pesticide residue and ethylene oxide.</text>`; y += 18;
+  const t1 = p.cat === "sp" ? "Every batch tested at an NABL lab for" : "Made on Rasmitra's own lines, the same";
+  const t2 = p.cat === "sp" ? "pesticide residue and ethylene oxide." : "plant and care as our sharbat.";
+  s += `<text x="${L}" y="${y}" font-family="${B}" font-size="${fs}" font-weight="700" fill="#046a38">${t1}</text>`; y += 13.5;
+  s += `<text x="${L}" y="${y}" font-family="${B}" font-size="${fs}" font-weight="700" fill="#046a38">${t2}</text>`; y += 18;
   // MRP / batch block
   s += `<rect x="${L}" y="${y - 10}" width="${W * .55}" height="58" fill="none" stroke="#1a1a1a" stroke-dasharray="3 2"/>`;
   s += `<text x="${L + 6}" y="${y + 4}" font-family="${B}" font-size="${fs}" font-weight="700">MRP ₹${p.mrp}</text><text x="${L + 6 + (p.mrp.length > 5 ? 78 : 70)}" y="${y + 4}" font-family="${B}" font-size="${fs - 2}">(incl. all taxes)</text>`;
@@ -444,50 +305,178 @@ function back(p) {
   s += `<rect x="${R - 54}" y="${y - 10}" width="54" height="54" fill="#fff" stroke="#1a1a1a"/>${[...Array(25)].map((_, i) => ((i * 7) % 3 === 0 || i % 4 === 1) ? `<rect x="${R - 50 + (i % 5) * 9.5}" y="${y - 6 + Math.floor(i / 5) * 9.5}" width="8" height="8" fill="#000"/>` : "").join("")}`;
   s += `<text x="${R - 27}" y="${y + 56}" font-family="${B}" font-size="8" text-anchor="middle">Recipes</text>`;
   y += 62;
-  s += `<text x="${L}" y="${y}" font-family="${B}" font-size="${fs - 1}">Marketed by: Rasmitra Beverages Ltd. [Address]</text>`; y += 13;
+  s += `<text x="${L}" y="${y}" font-family="${B}" font-size="${fs - 1}">${p.cat === "sp" ? "Marketed" : "Mfd. &amp; marketed"} by: Rasmitra Beverages Ltd. [Address]</text>`; y += 13;
   s += `<text x="${L}" y="${y}" font-family="${B}" font-size="${fs - 1}">FSSAI Lic. No. [14-digit placeholder] · Care: [toll-free]</text>`; y += 10;
   s += vegMark(L, y + 4);
   s += bars(R - 122, y + 2, 116, 24);
   return s;
 }
-const svgPack = b => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560" role="img" style="width:100%;max-width:220px;height:auto">${b}</svg>`;
+const svgPack = b => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 560" role="img" style="width:100%;max-width:200px;height:auto">${b}</svg>`;
 
-const MOCK = [['chai', 'Chai Masala 100 g', 'T1 · GT/MT · ₹70'], ['jaljeera', 'Jaljeera 15 g sachet', 'T1 · GT trial · ₹10'], ['garam', 'Garam Masala 100 g', 'T2 · GT/MT · ₹70'], ['kking', 'Kitchen King 500 g', 'T2 · Q-com exclusive · ₹299']];
+const $ = s => document.querySelector(s);
+const fmt = (x, d = 1) => x.toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+/* tabs */
+const tabs = [...document.querySelectorAll('[role=tab]')];
+function show(id) { tabs.forEach(t => { const on = t.getAttribute('aria-controls') === id; t.setAttribute('aria-selected', on); document.getElementById(t.getAttribute('aria-controls')).hidden = !on; }); try { localStorage.setItem('rsim4-tab', id); } catch (e) {} }
+tabs.forEach(t => t.addEventListener('click', () => show(t.getAttribute('aria-controls'))));
+const ids = ['screen', 'grow', 'true', 'packs', 'gate']; let sv = null; try { sv = localStorage.getItem('rsim4-tab'); } catch (e) {}
+const h = (location.hash || '').slice(1); show(ids.includes(h) ? h : (ids.includes(sv) ? sv : 'screen'));
+function slider(host, key, label, min, max, step, val, unit, onIn) {
+  const id = 's-' + key, d = document.createElement('div'); d.className = 'slider';
+  d.innerHTML = `<label for="${id}">${label}</label><output id="${id}-o">${val}${unit}</output><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}">`;
+  host.appendChild(d); const inp = d.querySelector('input'), out = d.querySelector('output');
+  inp.addEventListener('input', () => { out.textContent = inp.value + unit; onIn(+inp.value); });
+  return { set(v) { inp.value = v; out.textContent = v + unit; } };
+}
+function seg(el, cb) { el.querySelectorAll('button').forEach(b => b.onclick = () => { el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); cb(b.dataset.v); }); }
+
+/* ---------- 1. SCREEN ---------- */
+const CATS = [
+  { n: "Spices", m: 78000, g: 11, d: [1, 1, 1], cm: "High", cx: "Low", why: "", pick: "Launch FY22 Q4" },
+  { n: "RTC mixes", m: 9800, g: 17, d: [1, 1, 1], cm: "High", cx: "Medium", why: "", pick: "Option FY23" },
+  { n: "Pickles", m: 12500, g: 13, d: [1, 1, 1], cm: "High", cx: "Low", why: "", pick: "Option FY23" },
+  { n: "Premixes", m: 6400, g: 14, d: [1, 1, 1], cm: "High", cx: "Low", why: "", pick: "Launch FY22 Q3" },
+  { n: "Namkeen", m: 46000, g: 12, d: [1, 1, 1], cm: "Medium", cx: "High", why: "Large and counter-seasonal, but it needs a plant and stretches the brand furthest." },
+  { n: "Staples", m: 240000, g: 8, d: [1, .5, 0], cm: "Medium", cx: "High", why: "Thin margins can't pay general-trade terms, and it needs a plant." },
+  { n: "Dairy desserts", m: 8900, g: 15, d: [0, 0, .5], cm: "Low", cx: "High", why: "Needs a chilled route our distributors don't run; little contract manufacturing." },
+  { n: "Juices & RTD", m: 14700, g: 9, d: [1, 0, .5], cm: "Medium", cx: "High", why: "Closest to the brand, but sells in the same summer and our RTD already loses money." },
+];
+const DF = { "Spices": 5, "RTC mixes": 5, "Pickles": 5, "Premixes": 5, "Namkeen": 5, "Staples": 3, "Dairy desserts": 1.7, "Juices & RTD": 3 };
+const BF = { "Spices": 5, "RTC mixes": 4, "Pickles": 5, "Premixes": 5, "Namkeen": 2, "Staples": 2, "Dairy desserts": 1, "Juices & RTD": 2 };
+const lo = Math.log10(6400), hi = Math.log10(240000);
+const W = { s: 35, g: 35, d: 15, b: 15 }, wS = {};
+[['s', 'Market size'], ['g', '3-year growth'], ['d', 'Distributor fit'], ['b', 'Budget fit']].forEach(([k, l]) => wS[k] = slider($('#wts'), 'w' + k, l, 0, 70, 5, W[k], ' pts', v => { W[k] = v; renderScreen(); }));
+document.querySelectorAll('[data-w]').forEach(b => b.onclick = () => { const v = b.dataset.w.split(',').map(Number); ['s', 'g', 'd', 'b'].forEach((k, i) => { W[k] = v[i]; wS[k].set(v[i]); }); renderScreen(); });
+const yn = v => v === 1 ? '<span class="ok">Yes</span>' : v === .5 ? '<span class="warn">Partly</span>' : '<span class="bad">No</span>';
+function renderScreen() {
+  const tw = W.s + W.g + W.d + W.b || 1;
+  const rows = CATS.map(c => { const s = 1 + 4 * (Math.log10(c.m) - lo) / (hi - lo), g = 1 + 4 * (c.g - 8) / 9; const pass = DF[c.n] >= 4 && BF[c.n] >= 4; return { c, sc: (W.s * s + W.g * g + W.d * DF[c.n] + W.b * BF[c.n]) / tw, pass }; });
+  const ins = rows.filter(r => r.pass).sort((a, b) => b.sc - a.sc), outs = rows.filter(r => !r.pass).sort((a, b) => b.sc - a.sc);
+  $('#orderTxt').textContent = ins.map((r, i) => (i + 1) + ' ' + r.c.n).join(' · ');
+  $('#rankT').innerHTML = '<tr><th>#</th><th>Category</th><th class="n">Score</th><th></th><th>Our call</th></tr>' + [...ins, ...outs].map((r, i) => `<tr class="${r.pass ? '' : 'faded'}"><td>${r.pass ? i + 1 : '–'}</td><td><b>${r.c.n}</b></td><td class="n">${r.sc.toFixed(2)}</td><td style="width:30%"><div class="bar"><i style="width:${r.sc / 5 * 100}%"></i></div></td><td>${r.pass ? (r.c.pick ? `<span class="pill ${r.c.pick.startsWith('Launch') ? 'p-in' : 'p-bench'}">${r.c.pick}</span>` : '') : '<span class="pill p-out">Out</span>'}</td></tr>`).join('');
+  $('#consT').innerHTML = '<tr><th>Category</th><th>Ambient kirana route</th><th>Sells outside Mar-Jul</th><th>Margin pays trade terms</th><th class="n">Distributor fit</th><th>Contract mfg</th><th>In-house capex</th><th class="n">Budget fit</th><th>Result</th><th>Why we refuse it</th></tr>' + CATS.map(c => `<tr><td><b>${c.n}</b></td><td>${yn(c.d[0])}</td><td>${yn(c.d[1])}</td><td>${yn(c.d[2])}</td><td class="n">${DF[c.n].toFixed(1)}</td><td>${c.cm}</td><td>${c.cx}</td><td class="n">${BF[c.n].toFixed(1)}</td><td>${DF[c.n] >= 4 && BF[c.n] >= 4 ? '<span class="ok">Pass</span>' : '<span class="bad">Out</span>'}</td><td class="note">${c.why}</td></tr>`).join('');
+}
+renderScreen();
+
+/* ---------- 2. GROW (replicates team top-down model) ---------- */
+const MKT = { spices: 78000, premix: 6400, pickles: 12500, rtc: 9800 }, CAGR = { spices: .11, premix: .14, pickles: .13, rtc: .17 }, ORG = { spices: .42, premix: .55, pickles: .38, rtc: .61 }, SHARE = { spices: .03, premix: .10, pickles: .05, rtc: .04 };
+const NR = .754, CMG = { spices: .199, premix: .256, pickles: .224, rtc: .22 }, MJ = { spices: .42, premix: .10, pickles: .42, rtc: .42 };
+const NAME = { spices: "Spices", premix: "Premixes", pickles: "Pickles", rtc: "RTC mixes" };
+const SC = {
+  Base: { reach: [.08, .08, .08], mult: 1, ramp: { premix: [.3, .75, 1], spices: [.05, .6, .95], third: [0, .15, .75] }, note: "Launches on plan: premixes for the first winter, spices one quarter later, a third category a year after." },
+  Stretch: { reach: [.08, .09, .10], mult: 1.5, ramp: { premix: [.3, .75, 1], spices: [.05, .6, .95], third: [0, .15, .75] }, note: "Same launch dates; half as much share again, and reach grows as we add outlets in Regions 3-4 and quick-commerce." },
+  Downside: { reach: [.08, .08, .08], mult: .6, ramp: { premix: [0, .3, .75], spices: [0, .25, .75], third: [0, 0, .3] }, note: "Every launch slips a season and shares come in lower." },
+};
+const mkt = (c, i) => MKT[c] * Math.pow(1 + CAGR[c], i + 1);
+function model(sc, third, o = {}) {
+  const p = SC[sc], core = [0, 1, 2].map(i => 536.48 * Math.pow(1.048, i + 1)), today = [0, 1, 2].map(i => 23.52 * Math.pow(1.1, i + 1));
+  const cats = ['spices', 'premix'].concat(third ? [third] : []), L = {};
+  cats.forEach(c => L[c] = [0, 1, 2].map(i => { const reach = o.reach != null ? o.reach : p.reach[i]; const sh = (o.share != null && c === 'spices') ? o.share : SHARE[c]; return mkt(c, i) * ORG[c] * reach * NR * sh * p.mult * p.ramp[c === third ? 'third' : c][i]; }));
+  const nc = [0, 1, 2].map(i => cats.reduce((a, c) => a + L[c][i], 0)), np = nc.map((x, i) => x + today[i]), tot = np.map((x, i) => x + core[i]);
+  const marjul = ((core[2] + today[2]) * .58 + cats.reduce((a, c) => a + L[c][2] * MJ[c], 0)) / tot[2];
+  return { core, today, L, cats, nc, np, tot, share: np.map((x, i) => x / tot[i]), marjul, p };
+}
+function fin(M) {
+  const contrib = [0, 1, 2].map(i => M.cats.reduce((a, c) => a + M.L[c][i] * CMG[c], 0)), opex = [12, 18, 17], capex = [1, 2, 2];
+  const ebitda = contrib.map((x, i) => x - opex[i]), nwc = M.nc.map(x => x * .0642), dn = nwc.map((x, i) => i ? x - nwc[i - 1] : x);
+  const fcf = ebitda.map((x, i) => x - dn[i] - capex[i]); let c = 0; const cum = fcf.map(x => c += x);
+  const rev = {}; M.cats.forEach(k => rev[k] = M.L[k][2]); let lastN = nwc[2]; const ext = [];
+  for (let y = 0; y < 2; y++) { M.cats.forEach(k => rev[k] = rev[k] * (1 + CAGR[k]) * (k === 'spices' && y === 0 ? 1 / .95 : 1)); const t = Object.values(rev).reduce((a, b) => a + b, 0); const con = M.cats.reduce((a, k) => a + rev[k] * CMG[k], 0); const e = con - .06 * t - 3; const n = t * .0642; const f = e - (n - lastN) - 1; lastN = n; c += f; ext.push({ t, con, e, f, cum: c }); }
+  let pay = null; const all = [...cum, ...ext.map(e => e.cum)]; for (let i = 0; i < all.length; i++) if (all[i] >= 0) { pay = ['FY22', 'FY23', 'FY24', 'FY25E', 'FY26E'][i]; break; }
+  return { contrib, opex, ebitda, fcf, cum, ext, pay };
+}
+let SCN = 'Base', TH = '';
+seg($('#scSeg'), v => { SCN = v; renderGrow(); }); seg($('#thSeg'), v => { TH = v; renderGrow(); });
+function bars(series, names, cols, labels, target) {
+  const w = 560, hgt = 240, l = 40, b = 26, t = 18, max = 300, y = v => t + (hgt - t - b) * (1 - v / max), bw = 70;
+  let s = `<svg viewBox="0 0 ${w} ${hgt + 44}" role="img" aria-label="Stacked new-product revenue">`;
+  for (let g = 0; g <= max; g += 50) s += `<line x1="${l}" x2="${w - 8}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="${l - 6}" y="${y(g) + 4}" font-size="11" text-anchor="end" fill="var(--muted)">${g}</text>`;
+  if (target) s += `<line x1="${l + 330}" x2="${w - 8}" y1="${y(target)}" y2="${y(target)}" stroke="var(--fg)" stroke-dasharray="5 4"/><text x="${l + 326}" y="${y(target) + 4}" font-size="11" text-anchor="end" fill="var(--fg)">30% needs ${fmt(target)}</text>`;
+  labels.forEach((lab, i) => { const x = l + 30 + i * 125; let acc = 0; series.forEach((ser, j) => { const v = ser[i] || 0; if (v > 0) s += `<rect x="${x}" y="${y(acc + v)}" width="${bw}" height="${y(acc) - y(acc + v)}" fill="${cols[j]}"/>`; acc += v; }); s += `<text x="${x + bw / 2}" y="${y(acc) - 6}" font-size="12" font-weight="700" text-anchor="middle" fill="var(--fg)">${fmt(acc)}</text><text x="${x + bw / 2}" y="${hgt - 6}" font-size="12" text-anchor="middle" fill="var(--fg)">${lab}</text>`; });
+  names.forEach((n, j) => { const x = 8 + j * 150; s += `<rect x="${x}" y="${hgt + 16}" width="10" height="10" fill="${cols[j]}"/><text x="${x + 14}" y="${hgt + 25}" font-size="11" fill="var(--fg)">${n}</text>`; });
+  return s + '</svg>';
+}
+function lines() {
+  const w = 560, hh = 240, l = 40, r = 110, t = 14, b = 26, y = v => t + (hh - t - b) * (1 - v / .35), x = i => l + i * ((w - l - r) / 3);
+  let s = `<svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="New-product share by scenario">`;
+  [0, .05, .1, .15, .2, .25, .3, .35].forEach(g => s += `<line x1="${l}" x2="${w - r}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="${l - 6}" y="${y(g) + 4}" font-size="11" text-anchor="end" fill="var(--muted)">${Math.round(g * 100)}%</text>`);
+  s += `<line x1="${l}" x2="${w - r}" y1="${y(.3)}" y2="${y(.3)}" stroke="var(--fg)" stroke-dasharray="5 4"/><text x="${l + 6}" y="${y(.3) - 5}" font-size="11" fill="var(--fg)">Board target 30%</text>`;
+  ['Base', 'Stretch', 'Downside'].forEach(sc => { const M = model(sc, TH); const pts = [.042, ...M.share]; const on = sc === SCN; s += `<polyline points="${pts.map((v, i) => x(i) + ',' + y(v)).join(' ')}" fill="none" stroke="${on ? 'var(--deep)' : 'var(--line)'}" stroke-width="${on ? 3 : 2}"/>${on ? pts.map((v, i) => `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="var(--deep)"/>`).join('') : ''}<text x="${x(3) + 8}" y="${y(pts[3]) + 4}" font-size="11.5" font-weight="${on ? 700 : 400}" fill="var(--fg)">${sc} ${fmt(pts[3] * 100)}%</text>`; });
+  ['FY21', 'FY22', 'FY23', 'FY24'].forEach((yr, i) => s += `<text x="${x(i)}" y="${hh - 6}" font-size="12" text-anchor="middle" fill="var(--fg)">${yr}</text>`);
+  return s + '</svg>';
+}
+function renderGrow() {
+  const M = model(SCN, TH), F = fin(M), need = .3 * (M.core[2]) / .7;
+  $('#scNote').textContent = SC[SCN].note;
+  const k = [[fmt(M.share[2] * 100) + '%', 'New-product share, FY24 (target 30%; FY21 4.2%)', M.share[2] >= .3], ['₹' + fmt(M.nc[2]) + ' Cr', 'New-category revenue, FY24 (target needs ₹' + fmt(need - M.today[2]) + ' Cr)', M.nc[2] >= need - M.today[2]], ['₹' + fmt(Math.max(0, need - M.np[2])) + ' Cr', 'Still short of the 30% target, FY24', need - M.np[2] <= 0], ['₹' + fmt(M.tot[2]) + ' Cr', 'Company revenue, FY24 (Board: toward ₹900 Cr)', M.tot[2] >= 900], [fmt((Math.pow(M.tot[2] / 560, 1 / 3) - 1) * 100) + '%', 'Revenue growth a year, FY21-24 (FY18-21: 4.8%)', true], [F.pay || 'after FY26E', 'Programme cash payback (cumulative FCF ≥ 0)', !!F.pay && F.pay <= 'FY25E']];
+  $('#kpis').innerHTML = k.map(([v, l, ok]) => `<div class="kpi ${ok ? 'ok' : 'bad'}"><b>${v}</b><span>${l}</span></div>`).join('');
+  const cols = ['var(--line)', '#e0702b', 'var(--deep)', 'var(--teal)'], names = ["Today's new products", 'Premixes', 'Spices'].concat(M.cats[2] ? [NAME[M.cats[2]]] : []);
+  const ser = [[23.52, ...M.today], [0, ...M.L.premix], [0, ...M.L.spices]].concat(M.cats[2] ? [[0, ...M.L[M.cats[2]]]] : []);
+  $('#revChart').innerHTML = bars(ser, names, cols, ['FY21', 'FY22', 'FY23', 'FY24'], need);
+  $('#shareChart').innerHTML = lines();
+  $('#chips').innerHTML = M.cats.map(c => { const rk = c === TH ? 'third' : c; const v = [['₹' + Math.round(mkt(c, 2)).toLocaleString('en-IN') + ' Cr', 'Market'], [Math.round(ORG[c] * 100) + '%', 'Organised share'], [Math.round(M.p.reach[2] * 100) + '%', 'Our reach'], ['75.4%', 'Net realisation'], [Math.round(SHARE[c] * 100) + '%', 'Our share'], [M.p.mult.toFixed(1), 'Scenario multiplier'], [Math.round(M.p.ramp[rk][2] * 100) + '%', 'Launch ramp']]; return `<div><span class="eyebrow">${NAME[c]}, FY24</span><div class="chips">${v.map(([a, b], i) => `${i ? '<span class="x">×</span>' : ''}<span class="chip"><b>${a}</b><small>${b}</small></span>`).join('')}<span class="x">=</span><span class="chip res"><b>₹${fmt(M.L[c][2])} Cr</b><small>Revenue</small></span></div></div>`; }).join('');
+  const ln = [['Core business', M.core], ["Today's new products", M.today], ...M.cats.map(c => [NAME[c], M.L[c], c])];
+  $('#lineT').innerHTML = '<tr><th>Line</th><th class="n">FY22</th><th class="n">FY23</th><th class="n">FY24</th><th class="n">Mkt share (MRP)</th></tr>' + ln.map(([n, v, c]) => `<tr><td>${n}</td>${v.map(x => `<td class="n">${fmt(x)}</td>`).join('')}<td class="n">${c ? fmt(v[2] / NR / mkt(c, 2) * 100, 2) + '%' : ''}</td></tr>`).join('') + `<tr><td><b>Company revenue</b></td>${M.tot.map(x => `<td class="n"><b>${fmt(x)}</b></td>`).join('')}<td></td></tr><tr><td><b>New-product share</b></td>${M.share.map(x => `<td class="n"><b>${fmt(x * 100)}%</b></td>`).join('')}<td></td></tr>`;
+  const r = (n, a, b = []) => `<tr><td>${n}</td>${a.map(x => `<td class="n">${fmt(x)}</td>`).join('')}${b.map(x => `<td class="n muted">${fmt(x)}</td>`).join('')}</tr>`;
+  $('#finT').innerHTML = '<tr><th></th><th class="n">FY22</th><th class="n">FY23</th><th class="n">FY24</th><th class="n">FY25E</th><th class="n">FY26E</th></tr>' + r('New-category revenue', M.nc, F.ext.map(e => e.t)) + r('Contribution', F.contrib, F.ext.map(e => e.con)) + r('Programme / sustaining opex', F.opex.map(x => -x), F.ext.map(e => -(e.con - e.e))) + r('Incremental EBITDA', F.ebitda, F.ext.map(e => e.e)) + r('Free cash flow', F.fcf, F.ext.map(e => e.f)) + `<tr><td><b>Cumulative FCF</b></td>${[...F.cum, ...F.ext.map(e => e.cum)].map(x => `<td class="n"><b class="${x < 0 ? 'bad' : 'ok'}">${fmt(x)}</b></td>`).join('')}</tr>`;
+}
+renderGrow();
+
+/* ---------- 3. WHAT HAS TO BE TRUE ---------- */
+(function () {
+  const reaches = [.06, .08, .10, .12], shares = [.02, .03, .04, .05, .06];
+  $('#gridT').innerHTML = '<tr><th>Spices share ↓ / Reach →</th>' + reaches.map(r => `<th class="n">${r * 100}%</th>`).join('') + '</tr>' + shares.map(s => '<tr><th>' + s * 100 + '%</th>' + reaches.map(r => { const v = model('Base', '', { reach: r, share: s }).share[2]; const base = r === .08 && s === .03; return `<td class="cell ${v >= .3 ? 'hit' : ''}" style="--a:${Math.min(1, (v - .1) / .25)}">${fmt(v * 100)}%${base ? ' <small>base</small>' : ''}</td>`; }).join('') + '</tr>').join('');
+  const steps = [['Base: spices + premixes', model('Base', '').share[2]], ['Stretch: reach 8→10%, share ×1.5', model('Stretch', '').share[2]], ['+ pickles from FY23 (option)', model('Stretch', 'pickles').share[2]], ['or + RTC mixes from FY23 (option)', model('Stretch', 'rtc').share[2]]];
+  const w = 560, hh = 210, l = 210, x = v => l + (w - l - 40) * v / .35;
+  let s = `<svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="Bridge to 30 percent">`;
+  s += `<line x1="${x(.3)}" x2="${x(.3)}" y1="6" y2="${hh - 20}" stroke="var(--fg)" stroke-dasharray="5 4"/><text x="${x(.3)}" y="${hh - 6}" font-size="11" text-anchor="middle" fill="var(--fg)">30% target</text>`;
+  steps.forEach(([n, v], i) => { const y = 14 + i * 44; s += `<text x="${l - 8}" y="${y + 18}" font-size="12" text-anchor="end" fill="var(--fg)">${n}</text><rect x="${l}" y="${y + 4}" width="${x(v) - l}" height="22" fill="${v >= .3 ? 'var(--deep)' : i ? 'var(--green)' : 'var(--muted)'}"/><text x="${x(v) + 6}" y="${y + 20}" font-size="12" font-weight="700" fill="var(--fg)">${fmt(v * 100)}%</text>`; });
+  $('#bridge').innerHTML = s + '</svg>';
+  $('#bridgeNote').innerHTML = '<b>Reading it.</b> Spices and premixes alone reach 18.5% on base assumptions. Hitting 30% needs both stretch levers (reach to 10% through Regions 3-4 and quick-commerce, and 1.5x share through ₹10 trial packs and sampling) and a third category from FY23, or spices share of about 5% at 12% reach. We treat 30% as a gated stretch goal and say so to the Board.';
+  const per = model('Base', '', { share: .04 }).L.spices[2] - model('Base', '').L.spices[2];
+  $('#pointT').innerHTML = `<div class="kpis6"><div class="kpi ok"><b>₹${fmt(per)} Cr</b><span>Spices: one extra point of share (3% → 4%)</span></div><div class="kpi ok"><b>₹${fmt(model('Base', '').L.premix[2] / 10)} Cr</b><span>Premixes: one point of share</span></div><div class="kpi"><b>₹${fmt(124.9)} Cr</b><span>Base-case gap to 30% in FY24</span></div></div>`;
+})();
+
+/* ---------- 4. PACKS ---------- */
+$('#brandArch').innerHTML = [
+  ['Rasmitra Winter Warmers', 'Mother brand · launch FY22 Q3', 'Ginger-lemon hot drink and badam-elaichi milk mix. Same shopper, shelf and distributor as our concentrates, selling Oct-Feb when concentrates do not.', 'var(--forest)'],
+  ['Swaad by Rasmitra', 'Endorsed sub-brand · launch FY22 Q4', 'Everyday sabzi masala and garam masala. The endorsement lends trust without stretching the mother brand into the kitchen.', 'var(--deep)'],
+  ['Option from FY23', 'Gated third category', 'Pickles (5% share, fragmented and regional) or RTC mixes (4% share). Only if both launches clear their test-market gates.', 'var(--teal)'],
+].map(([t, k, d, c]) => `<div class="panel" style="border-top:5px solid ${c}"><span class="eyebrow">${k}</span><h3>${t}</h3><p style="font-size:14px">${d}</p></div>`).join('');
+const MOCK = [['ginger', 'Ginger-Lemon, 10 x 15 g', 'Premix · ₹99'], ['gintrial', 'Ginger-Lemon trial sachet', 'Premix · ₹10'], ['badam', 'Badam-Elaichi, 150 g', 'Premix · ₹99'], ['sabzi', 'Sabzi Masala, 50 g', 'Spices · ₹49'], ['garam', 'Garam Masala, 50 g', 'Spices · ₹49']];
 let side = 'front';
-function renderPacks() { $('#packGrid').innerHTML = MOCK.map(([id, n, d]) => `<div class="pack" aria-label="${n}, ${side} of pack">${svgPack((side === 'front' ? front : back)(PKD.find(x => x.id === id)))}<b>${n}</b><span>${d}</span></div>`).join(''); $('#sideF').className = 'btn' + (side === 'front' ? ' primary' : ''); $('#sideB').className = 'btn' + (side === 'back' ? ' primary' : ''); $('#sideF').setAttribute('aria-pressed', side === 'front'); $('#sideB').setAttribute('aria-pressed', side === 'back'); }
+function renderPacks() { $('#packGrid').innerHTML = MOCK.map(([id, n, d]) => `<div class="pack" aria-label="${n}, ${side}">${svgPack((side === 'front' ? front : back)(PKD.find(x => x.id === id)))}<b>${n}</b><span>${d}</span></div>`).join(''); $('#sideF').className = 'btn' + (side === 'front' ? ' primary' : ''); $('#sideB').className = 'btn' + (side === 'back' ? ' primary' : ''); }
 $('#sideF').onclick = () => { side = 'front'; renderPacks(); }; $('#sideB').onclick = () => { side = 'back'; renderPacks(); };
 renderPacks();
+const UE = [['Sabzi Masala 8 g trial', 10, 5.25, 7.5, 10.2], ['Sabzi Masala 50 g', 49, 23, 36.75, 28.2], ['Garam Masala 5 g trial', 10, 5.35, 7.5, 8.8], ['Garam Masala 50 g', 49, 23.5, 36.75, 26.8], ['Ginger-Lemon 15 g sachet', 10, 4.35, 7.5, 22.2], ['Ginger-Lemon 10-sachet', 99, 44, 74.25, 32.9], ['Badam-Elaichi 15 g sachet', 10, 4.5, 7.5, 20.2], ['Badam-Elaichi 150 g', 99, 45.5, 74.25, 30.9]];
+$('#ueT').innerHTML = '<tr><th>Pack</th><th class="n">MRP</th><th class="n">COGS</th><th class="n">Net realisation</th><th class="n">Contribution %</th></tr>' + UE.map(u => `<tr><td>${u[0]}</td><td class="n">${u[1]}</td><td class="n">${u[2]}</td><td class="n">${u[3]}</td><td class="n"><b class="${u[4] < 15 ? 'warn' : 'ok'}">${u[4]}%</b></td></tr>`).join('');
 
-/* ---------- 4. GATES ---------- */
+/* ---------- 5. GATES ---------- */
 const GATES = [
-  { n: 'Discover', w: 'Wk 0-4', act: 'FGDs and kirana visits; idea scored on the 8-criteria screen.', kill: 'Screen score below 3.8 (or 3.5 with a named portfolio reason)', lesson: 'Ideas used to start with the promoter and get funded on conviction.', key: 'score', test: v => v >= 3.5 },
+  { n: 'Discover', w: 'Wk 0-4', act: 'Interviews, FGDs and kirana visits; idea run through the category screen.', kill: 'Fails a Board constraint (distributor or budget fit below 4)', lesson: 'Ideas used to start with the promoter and get funded on conviction.', key: 'score', test: v => v >= 4 },
   { n: 'Concept', w: 'Wk 5-8', act: 'Concept test with 200 consumers per region.', kill: 'Top-2-box purchase intent below 40%', lesson: 'Three of six past launches had no concept, pack or price test.', key: 't2b', test: v => v >= 40 },
-  { n: 'Product & pack', w: 'Wk 9-14', act: 'Blind test against the leader; two vendors signed at spec.', kill: 'Loses blind test, or fewer than 2 vendors at spec', lesson: 'Energy drink: vendor missed spec, ₹2.2 Cr written off.', key: 'vend', test: v => v >= 2 },
-  { n: 'Price & trade', w: 'Wk 15-18', act: 'Price ladder plus retailer and distributor clinic.', kill: 'Gross margin below 35% or retailer margin below 18%, or price more than 5% above leader', lesson: 'Aloe vera RTD left no retailer margin; iced tea priced 18% above the leader.', key: 'price', test: (v, s) => s.gm >= 35 && s.rm >= 18 && v <= 5 },
+  { n: 'Product & pack', w: 'Wk 9-14', act: 'Blind test against the leader; two vendors signed at spec; NABL testing for spices.', kill: 'Loses blind test, or fewer than 2 vendors at spec', lesson: 'Energy drink: vendor missed spec, ₹2.2 Cr written off.', key: 'vend', test: v => v >= 2 },
+  { n: 'Price & trade', w: 'Wk 15-18', act: 'Price ladder plus retailer and distributor clinic.', kill: 'Contribution below 20% on the regular pack, or price more than 5% above the leader', lesson: 'Aloe vera RTD left no retailer margin; iced tea priced 18% above the leader.', key: 'price', test: (v, s) => s.cm >= 20 && v <= 5 },
   { n: 'Test market', w: 'Wk 19-26', act: 'Two districts, GT and Q-com, eight weeks, sampling plan live.', kill: 'Repeat purchase below 25% by week 8', lesson: 'Jam was listed only in MT with no GT pull; herbal digestive never got a scale budget.', key: 'rep', test: v => v >= 25 },
 ];
 let sel = 0;
 function renderGates(res) {
   $('#gates').innerHTML = GATES.map((g, i) => `<button class="gate ${res ? (res[i] === true ? 'pass' : res[i] === false ? 'kill' : '') : ''}" aria-pressed="${i === sel}" data-i="${i}"><small>${g.w}</small><b>${g.n}</b></button>`).join('');
   $('#gates').querySelectorAll('.gate').forEach(b => b.onclick = () => { sel = +b.dataset.i; renderGates(res); });
-  const g = GATES[sel];
-  $('#gateDetail').innerHTML = `<b>${g.n} (${g.w}).</b> ${g.act}<br><b style="color:var(--bad)">Kill if:</b> ${g.kill}.<br><span class="muted">Exhibit 6 lesson: ${g.lesson}</span>`;
+  const g = GATES[sel]; $('#gateDetail').innerHTML = `<b>${g.n} (${g.w}).</b> ${g.act}<br><b class="bad">Kill if:</b> ${g.kill}.<br><span class="muted">Exhibit 6 lesson: ${g.lesson}</span>`;
 }
-const T = { score: 4.5, t2b: 52, vend: 2, gm: 44, rm: 18, price: 0, rep: 31 };
-const tS = {};
-const TL = [['score', 'Screen score', 2, 5, .1, ''], ['t2b', 'Concept top-2-box', 0, 80, 1, '%'], ['vend', 'Vendors signed at spec', 0, 3, 1, ''], ['gm', 'Gross margin at launch price', 10, 60, 1, '%'], ['rm', 'Retailer margin', 5, 30, 1, '%'], ['price', 'Price vs category leader', -20, 30, 1, '%'], ['rep', 'Repeat by week 8', 0, 60, 1, '%']];
-TL.forEach(([k, l, a, b, st, u]) => tS[k] = slider($('#testSl'), 't' + k, l, a, b, st, T[k], u, v => { T[k] = v; runGates(); }));
-const PRE = { ok: { score: 4.5, t2b: 52, vend: 2, gm: 44, rm: 18, price: 0, rep: 31 }, iced: { score: 4.2, t2b: 38, vend: 2, gm: 45, rm: 18, price: 18, rep: 14 }, aloe: { score: 2.9, t2b: 45, vend: 1, gm: 21, rm: 9, price: 6, rep: 20 } };
+const T = { score: 5, t2b: 52, vend: 2, cm: 32.9, price: 0, rep: 31 }, tS = {};
+[['score', 'Board-fit score (lower of distributor and budget fit)', 1, 5, .1, ''], ['t2b', 'Concept top-2-box', 0, 80, 1, '%'], ['vend', 'Vendors signed at spec', 0, 3, 1, ''], ['cm', 'Contribution on regular pack', 0, 40, .1, '%'], ['price', 'Price vs category leader', -20, 30, 1, '%'], ['rep', 'Repeat by week 8', 0, 60, 1, '%']].forEach(([k, l, a, b, st, u]) => tS[k] = slider($('#testSl'), 't' + k, l, a, b, st, T[k], u, v => { T[k] = v; runGates(); }));
+const PRE = { ok: { score: 5, t2b: 52, vend: 2, cm: 32.9, price: 0, rep: 31 }, iced: { score: 5, t2b: 38, vend: 2, cm: 24, price: 18, rep: 14 }, aloe: { score: 3, t2b: 45, vend: 1, cm: 2, price: 6, rep: 20 } };
 document.querySelectorAll('[data-preset]').forEach(b => b.onclick = () => { const p = PRE[b.dataset.preset]; Object.keys(p).forEach(k => { T[k] = p[k]; tS[k].set(p[k]); }); runGates(); });
 function runGates() {
   const res = []; let dead = false, at = -1;
   GATES.forEach((g, i) => { if (dead) { res.push(null); return; } const ok = g.test(T[g.key], T); res.push(ok); if (!ok) { dead = true; at = i; } });
-  const spentWk = at < 0 ? 26 : [4, 8, 14, 18, 26][at];
   renderGates(res);
-  $('#verdict').innerHTML = GATES.map((g, i) => `<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:6px"><span>${g.n}</span><span class="verdict ${res[i] === true ? 'pass' : res[i] === false ? 'kill' : ''}">${res[i] === true ? 'PASS' : res[i] === false ? 'KILL' : 'not reached'}</span></div>`).join('') +
-    `<p style="font-size:14px">${at < 0 ? `<b>Scale.</b> All five gates cleared in 26 weeks. The launch gets its rollout budget and national Q-com listing.` : `<b>Killed at ${GATES[at].n}</b> in week ${spentWk}. Remaining budget returns to the pool; a benched category (winter premixes or namkeen) can take the slot.`}</p>`;
+  $('#verdict').innerHTML = GATES.map((g, i) => `<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:6px"><span>${g.n}</span><span class="verdict ${res[i] === true ? 'pass' : res[i] === false ? 'kill' : ''}">${res[i] === true ? 'PASS' : res[i] === false ? 'KILL' : 'not reached'}</span></div>`).join('') + `<p style="font-size:14px">${at < 0 ? '<b>Scale.</b> All five gates cleared in 26 weeks; the launch gets its rollout budget.' : `<b>Killed at ${GATES[at].n}</b> in week ${[4, 8, 14, 18, 26][at]}. Remaining budget returns to the pool.`}</p>`;
 }
 runGates();
+
 </script>
 
 </body>
