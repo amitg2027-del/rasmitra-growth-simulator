@@ -212,7 +212,7 @@ tr.faded td{color:var(--muted)}
     </div>
   </section>
 
-  <footer>Sources: The Growth Gambit case, Exhibits 1 to 6 (company data governs). Team top-down category model ("Rasmitra category screen"); team bottom-up Excel model (Rasmitra_Financial_Model). Deloitte-FICCI (Oct 2024). All brand names and packs are fictional concept work; demand figures are estimates until validated in pilots.</footer>
+  <footer>Related: <a href="https://claude.ai/artifact/TEa5SgsMFq1L6yyBw3a9u6" target="_blank" rel="noopener">category screen and growth model</a> · <a href="https://docs.google.com/spreadsheets/d/1nZSGHXq3_sRKb0EueC1a_8jHta1uloNFJPVZoNb5j6Y/edit?usp=sharing" target="_blank" rel="noopener">financial model (Google Sheet)</a>. Sources: The Growth Gambit case, Exhibits 1 to 6 (company data governs). Team top-down category model ("Rasmitra category screen"); team bottom-up Excel model (Rasmitra_Financial_Model). Deloitte-FICCI (Oct 2024). All brand names and packs are fictional concept work; demand figures are estimates until validated in pilots.</footer>
 </div>
 
 <script>
@@ -435,7 +435,7 @@ renderGrow();
   $('#bridge').innerHTML = s + '</svg>';
   $('#bridgeNote').innerHTML = '<b>Reading it.</b> Spices and premixes alone reach 18.5% on base assumptions. Hitting 30% needs both stretch levers (reach to 10% through Regions 3-4 and quick-commerce, and 1.5x share through ₹10 trial packs and sampling) and a third category from FY23, or spices share of about 5% at 12% reach. We treat 30% as a gated stretch goal and say so to the Board.';
   const per = model('Base', '', { share: .04 }).L.spices[2] - model('Base', '').L.spices[2];
-  $('#pointT').innerHTML = `<div class="kpis6"><div class="kpi ok"><b>₹${fmt(per)} Cr</b><span>Spices: one extra point of share (3% → 4%)</span></div><div class="kpi ok"><b>₹${fmt(model('Base', '').L.premix[2] / 10)} Cr</b><span>Premixes: one point of share</span></div><div class="kpi"><b>₹${fmt(124.9)} Cr</b><span>Base-case gap to 30% in FY24</span></div></div>`;
+  $('#pointT').innerHTML = `<div class="kpis6"><div class="kpi ok"><b>₹${fmt(per)} Cr</b><span>Spices: one extra point of share (3% → 4%) in FY24; ₹27.0 Cr once fully ramped</span></div><div class="kpi ok"><b>₹${fmt(model('Base', '').L.premix[2] / 10)} Cr</b><span>Premixes: one point of share</span></div><div class="kpi"><b>₹${fmt(124.9)} Cr</b><span>Base-case gap to 30% in FY24</span></div></div>`;
 })();
 
 /* ---------- 4. PACKS ---------- */
