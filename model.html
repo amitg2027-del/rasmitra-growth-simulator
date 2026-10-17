@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Rasmitra category screen</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one working page, three tabs; panels hold live charts and tables built from case Exhibit 5 */
+:root{
+  --bg:#f7f7f5; --panel:#ffffff; --chip:#f6f6f3; --line:#e4e3de; --fg:#1d1d1b; --muted:#6f6e69; --faint:#a9a8a1;
+  --red:#9b2c22; --good:#2c7a2e; --amber:#a46b00;
+  --c-size:#e5809f; --c-growth:#108a10; --c-dist:#5d50d8; --c-budget:#9b90e0; --c-brand:#d39e1d;
+  --c-spices:#2f72d6; --c-premix:#e8693c; --c-rtc:#2db585; --c-pickles:#f0a500; --c-today:#c3c2b8; --c-out:#c8c6be; --c-out2:#dddcd6;
+  --cell0:#eef4fc; --cell1:#dce9f9; --cell2:#c6dbf5; --cell3:#aecbef;
+  --f-display:"Newsreader", Georgia, "Times New Roman", serif;
+  --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#171716; --panel:#201f1d; --chip:#272624; --line:#373632; --fg:#ecebe6; --muted:#a3a19a; --faint:#77756f;
+  --red:#ef8a7c; --good:#7fcf7f; --amber:#e6b04a; --c-today:#6f6e67; --c-out:#5a5953; --c-out2:#44433f;
+  --cell0:#1f2a38; --cell1:#253549; --cell2:#2c4361; --cell3:#33507a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#171716; --panel:#201f1d; --chip:#272624; --line:#373632; --fg:#ecebe6; --muted:#a3a19a; --faint:#77756f;
+  --red:#ef8a7c; --good:#7fcf7f; --amber:#e6b04a; --c-today:#6f6e67; --c-out:#5a5953; --c-out2:#44433f;
+  --cell0:#1f2a38; --cell1:#253549; --cell2:#2c4361; --cell3:#33507a; color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1380px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0 0 8px;text-wrap:balance}
+h3{font-size:16px;font-weight:500;margin:0 0 6px}
+.lede{color:var(--muted);font-size:15.5px;max-width:660px;margin:0}
+.lede b{color:var(--fg);font-weight:500}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:26px 0 22px;overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;font:inherit;font-size:15px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--fg);font-weight:500}
+button:focus-visible{outline:2px solid var(--c-spices);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 16px;min-width:0}
+.note{color:var(--muted);font-size:12.5px;max-width:600px;margin:0 0 12px}
+.stack{display:grid;gap:16px}
+.g2{display:grid;gap:16px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.g2e{display:grid;gap:16px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:900px){.g2,.g2e{grid-template-columns:1fr}}
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:28px;position:relative}
+.step{border:1px dashed var(--line);border-radius:6px;padding:12px;background:var(--chip);position:relative}
+.step.on{border:1px solid var(--fg);background:var(--panel)}
+.step:not(:last-child)::after{content:"→";position:absolute;right:-20px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.eb{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.step b{display:block;font-weight:500;font-size:15px;margin:4px 0}
+.step span.d{color:var(--muted);font-size:12.5px}
+@media (max-width:900px){.flow{grid-template-columns:1fr 1fr}.step::after{display:none}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;padding:3px;background:var(--chip);gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:4px 8px;border-radius:5px;font:inherit;font-size:13px;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--fg);font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.row{display:flex;gap:12px 18px;flex-wrap:wrap;align-items:center}
+.ph{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.rank{display:grid;grid-template-columns:22px 150px minmax(0,1fr) 46px;gap:6px 10px;align-items:center;font-variant-numeric:tabular-nums}
+.rank .n{font-family:var(--f-display);font-size:17px;text-align:center}
+.rank .nm{font-size:15px;line-height:1.2}
+.rank .nm small{display:block;font-size:12px;color:var(--muted)}
+.rank .nm small.out{color:var(--red)}
+.rank .sc{text-align:right;font-size:15px}
+.rank .faded{color:var(--muted)}
+.bar{height:16px;background:var(--c-out2);border-radius:2px;display:flex;overflow:hidden}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:12px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px;background:var(--sw)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th{font-weight:400;color:var(--muted);text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:bottom}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.r,th.r{text-align:right}
+tr.faded td{color:var(--muted)}
+.y{color:var(--good)}.p{color:var(--amber)}.no{color:var(--red)}
+.sub td{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 12px}
+.kpi .l{font-size:12.5px;color:var(--muted);line-height:1.3}
+.kpi .v{font-family:var(--f-display);font-size:26px;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.kpi .v.bad{color:var(--red)}
+.kpi .s{font-size:12px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 12px}
+.chip{background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-variant-numeric:tabular-nums}
+.chip b{display:block;font-weight:500;font-size:14.5px}
+.chip small{color:var(--muted);font-size:12px}
+.chip.res{border-color:var(--fg);background:var(--panel)}
+.op{color:var(--muted)}
+.mini{display:inline-block;width:72px;height:6px;background:var(--c-out2);border-radius:3px;vertical-align:middle;margin-right:8px;overflow:hidden}
+.mini i{display:block;height:100%}
+.pt{display:grid;grid-template-columns:110px minmax(0,1fr) 70px;gap:10px;align-items:center;margin:6px 0;font-variant-numeric:tabular-nums}
+.pt i{display:block;height:12px;border-radius:3px}
+.grid-t td{text-align:center;border:3px solid var(--panel);border-radius:4px;padding:6px}
+.grid-t td.hit{outline:2px solid var(--fg);outline-offset:-3px}
+.grid-t th{text-align:center;border:0}
+.grid-t td.rl{text-align:right;background:none;color:var(--muted)}
+svg text{fill:var(--fg);font-family:var(--f-body)}
+svg .ax{fill:var(--muted);font-size:12px}
+svg .gl{stroke:var(--line)}
+.callp{font-size:15px;margin:12px 0 0;max-width:640px}
+ul.next{margin:0;padding-left:18px;font-size:15px;max-width:680px;display:grid;gap:8px}
+@media (prefers-reduced-motion:no-preference){.bar i,.mini i,.pt i{transition:width .3s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <h1>Rasmitra category screen</h1>
+  <p class="lede">On our size-and-growth metric, spices ranks first and premixes fourth of the four categories that pass the Board's constraints. Together they reach <b>18.5%</b> of FY24 revenue in the base case and <b>27.5%</b> in the stretch case, against a target of <b>30%</b>.</p>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="t-play" aria-controls="play" aria-selected="true">Where to play</button>
+    <button role="tab" id="t-growth" aria-controls="growth" aria-selected="false">How much we can grow</button>
+    <button role="tab" id="t-assumptions" aria-controls="assumptions" aria-selected="false">Assumptions</button>
+  </nav>
+
+  <section id="play" role="tabpanel" aria-labelledby="t-play" class="stack">
+    <div class="panel">
+      <h3>How the screen works</h3>
+      <p class="note">The Board's constraints decide which categories may enter. Market size and growth then set the order.</p>
+      <div class="flow">
+        <div class="step"><span class="eb">Start</span><b>Exhibit 5 longlist</b><span class="d">Spices, Pickles, RTC mixes, Premixes, Staples, Namkeen, Juices &amp; RTD, Dairy desserts</span></div>
+        <div class="step"><span class="eb">Constraint</span><b>Distributor fit of at least 4</b><span class="d">Rides our ambient kirana route, sells outside Mar-Jul, and its margin pays general-trade terms.</span></div>
+        <div class="step"><span class="eb">Constraint</span><b>Budget fit of at least 4</b><span class="d">Contract manufacturing is available and in-house capex is low.</span></div>
+        <div class="step"><span class="eb">Score</span><b id="wTxt"></b><span class="d" id="wName">Our metric, in points</span></div>
+        <div class="step on"><span class="eb">Order</span><b id="orderTxt"></b><span class="d">Out: Staples, Namkeen, Juices &amp; RTD, Dairy desserts</span></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="panel">
+        <div class="ph"><h3>Ranking</h3><div class="seg" id="wSeg"><button data-k="our" aria-pressed="true">Our metric</button><button data-k="size">Size-led</button><button data-k="growth">Growth-led</button><button data-k="fit">Fit-led, with brand</button></div></div>
+        <p class="note" id="wNote"></p>
+        <div class="rank" id="rank"></div>
+        <div class="legend" id="rankLeg"></div>
+      </div>
+      <div class="panel">
+        <h3>Premixes against RTC mixes</h3>
+        <p class="note">The two sit closest on the screen and swap places depending on what we weight.</p>
+        <div class="scroll"><table>
+          <tr><th></th><th class="r">Premixes</th><th class="r">RTC mixes</th></tr>
+          <tr class="sub"><td colspan="3">Our priority</td></tr>
+          <tr><td>Market size, FY21</td><td class="r faint">₹6,400 Cr</td><td class="r"><b>₹9,800 Cr</b></td></tr>
+          <tr><td>3-year growth</td><td class="r">14%</td><td class="r"><b>17%</b></td></tr>
+          <tr class="sub"><td colspan="3">Board fit</td></tr>
+          <tr><td>Brand adjacency</td><td class="r"><b>4.6</b></td><td class="r">3.6</td></tr>
+          <tr><td>In-house capex</td><td class="r"><b>Low</b></td><td class="r">Medium</td></tr>
+          <tr><td>Typical gross margin</td><td class="r"><b>42%-50%</b></td><td class="r">40%-48%</td></tr>
+          <tr><td>Peak season</td><td class="r"><b>Oct-Feb</b></td><td class="r">Year-round</td></tr>
+        </table></div>
+        <p class="callp">RTC mixes is bigger and growing faster, so it beats premixes on both criteria our metric puts first. Premixes wins every Board-fit row. Keeping it means arguing fit over attractiveness, which is Tension 03 in the case.</p>
+        <p class="callp">Our case for premixes: it is the only category that peaks in winter, it can run in a plant that sits at <b>34%</b> utilisation in Oct-Dec, and it repeats the pattern of the premium variant that worked: existing plant, pack and route.</p>
+      </div>
+    </div>
+    <div class="g2e">
+      <div class="panel"><h3>Market size against growth</h3><p class="note">Bubble area is the rupees each market adds by FY24. Faded bubbles fail a Board constraint; outlined ones are our picks.</p><div id="bubble"></div></div>
+      <div class="panel"><h3>How the order moves with the size-growth split</h3><p class="note">Distributor and budget weights stay at our metric's. Size and growth share the rest of the points.</p><div id="sens"></div>
+        <p class="callp">Spices leads once market size gets <b>35</b> points or more. Premixes reaches the top two only when size gets <b>20</b> points or fewer, and there spices falls to fourth. No split puts spices and premixes in the top two together.</p></div>
+    </div>
+    <div class="panel"><h3>Board constraint check</h3><p class="note">Distributor fit averages the three tests on a 1-5 scale. Budget fit averages contract-manufacturing availability and in-house capex. A category needs both to pass.</p><div class="scroll"><table id="consT"></table></div></div>
+  </section>
+
+  <section id="growth" role="tabpanel" aria-labelledby="t-growth" class="stack" hidden>
+    <div class="row">
+      <span class="note" style="margin:0">Scenario</span><div class="seg" id="scSeg"><button data-v="Base" aria-pressed="true">Base</button><button data-v="Stretch">Stretch</button><button data-v="Downside">Downside</button></div>
+      <span class="note" style="margin:0">Third category, launched in FY23</span><div class="seg" id="thSeg"><button data-v="" aria-pressed="true">None</button><button data-v="rtc">RTC mixes</button><button data-v="pickles">Pickles</button></div>
+    </div>
+    <p class="note" id="scNote" style="margin:0"></p>
+    <div class="kpis" id="kpis"></div>
+    <div class="g2">
+      <div class="panel"><h3>New-product revenue, FY21-FY24</h3><p class="note">INR Cr at net realisation. The dashed mark is what new products need in FY24 to reach the Board's target.</p><div id="revChart"></div><div class="legend" id="revLeg"></div></div>
+      <div class="panel"><h3>New-product share of revenue</h3><p class="note">All three scenarios with the third category you picked. The selected scenario is in colour.</p><div id="shareChart"></div></div>
+    </div>
+    <div class="panel"><h3>How each category's revenue is built</h3><p class="note">Revenue = market × organised share × our reach × net realisation × our share × scenario multiplier × launch ramp. FY22 and FY23 use those years' market and ramp.</p><div id="chips"></div><p class="note" style="margin:0">The core business keeps its FY18-21 growth of 4.8% a year, and today's new products grow at 10%.</p></div>
+    <div class="panel"><h3>Revenue by line</h3><p class="note">INR Cr. The last two columns are sense checks to take into trade interviews; the outlet figure assumes half our outlets stock the category.</p><div class="scroll"><table id="lineT"></table></div><p class="note" id="coRev" style="margin:10px 0 0"></p></div>
+    <div class="g2">
+      <div class="panel"><h3>How much each market grows</h3><p class="note">INR Cr. Each year is the year before × (1 + the 3-year CAGR from Exhibit 5). Faded rows fail a Board constraint.</p><div class="scroll"><table id="mktT"></table></div></div>
+      <div class="panel"><h3>What one point of share is worth</h3><p class="note">FY24 revenue from one point of our share of branded sales in the outlets we reach, at base-case reach. This is where a large market pays off.</p><div id="pointT"></div></div>
+    </div>
+    <div class="panel"><h3>What has to be true for the target</h3><p class="note">FY24 new-product share with spices and premixes only, at base launch dates, as our reach and spices share change. Outlined cells reach the Board's target.</p><div class="scroll"><table class="grid-t" id="gridT"></table></div><p class="callp" id="gridNote"></p></div>
+  </section>
+
+  <section id="assumptions" role="tabpanel" aria-labelledby="t-assumptions" class="stack" hidden>
+    <p class="note" style="margin:0">Every input the model uses. Our estimates come first; the case figures they rest on are at the end.</p>
+    <div class="panel"><h3>Scenarios</h3>
+      <p class="note"><b>Base.</b> Launches on plan: premixes for the first winter, spices one quarter later, a third category a year after.</p>
+      <p class="note"><b>Stretch.</b> Same launch dates; half as much share again, and reach grows as we add outlets in Regions 3-4 and quick-commerce.</p>
+      <p class="note"><b>Downside.</b> Every launch slips a season and shares come in lower.</p>
+      <div class="scroll"><table id="scT"></table></div>
+      <p class="note" style="margin:10px 0 0">Our reach is the share of India's category sales that passes through the outlets and accounts we already serve. A ramp is the share of the year-three level reached in that year.</p></div>
+    <div class="panel"><h3>Category estimates</h3><div class="scroll"><table>
+      <tr><th>Category</th><th class="r">Our share by year three</th><th>Peak season</th><th class="r">Selling months</th><th class="r">Sales in Mar-Jul</th><th>Why this share</th><th>How to test it</th></tr>
+      <tr><td>Spices</td><td class="r">3%</td><td>Year-round</td><td class="r">12</td><td class="r">42%</td><td>Habit-led purchase with entrenched regional leaders, so a new brand wins slowly even with good adjacency.</td><td>Ask kirana owners how many packs a month a new trusted brand's masala would sell next to their current leader.</td></tr>
+      <tr><td>Pickles</td><td class="r">5%</td><td>Year-round</td><td class="r">12</td><td class="r">42%</td><td>Fragmented and regional, so a trusted brand can take share faster than in spices.</td><td>Ask shoppers which pickle brand they buy and whether a known brand would make them switch.</td></tr>
+      <tr><td>RTC mixes</td><td class="r">4%</td><td>Year-round</td><td class="r">12</td><td class="r">42%</td><td>National brands dominate and our brand stretches furthest here.</td><td>Check whether kiranas in our core regions stock instant mixes, or whether they sell mainly in modern trade.</td></tr>
+      <tr><td>Premixes</td><td class="r">10%</td><td>Oct-Feb</td><td class="r">5</td><td class="r">10%</td><td>Same shopper, shelf and distributor as concentrates, and it sells in the months concentrates don't.</td><td>Ask households who buy our concentrates in summer what they drink in winter, and at what price.</td></tr>
+    </table></div></div>
+    <div class="g2e">
+      <div class="panel"><h3>Model and screen settings</h3><div class="scroll"><table>
+        <tr><th>Setting</th><th class="r">Value</th><th>Basis</th></tr>
+        <tr><td>Net realisation (company revenue per rupee of MRP)</td><td class="r">75.4%</td><td>Exhibit 2: the flagship pack nets INR 147 on an MRP of INR 195 after retailer and distributor margins.</td></tr>
+        <tr><td>Growth of today's new products (herbal digestive, premium variant)</td><td class="r">10%</td><td>Estimate: about double the company's growth, since the premium variant is still building.</td></tr>
+        <tr><td>Share of our outlets that stock each new category</td><td class="r">50%</td><td>Estimate, used only for the per-outlet sales check.</td></tr>
+        <tr><td>Minimum distributor fit to pass (1-5)</td><td class="r">4</td><td>A category must pass at least two of the three distributor tests outright.</td></tr>
+        <tr><td>Minimum budget fit to pass (1-5)</td><td class="r">4</td><td>High 3P availability, or low in-house capex, keeps it inside a capex-light budget.</td></tr>
+        <tr><td>Gross margin that comfortably pays general-trade terms</td><td class="r">30%</td><td>Exhibit 2: the squash range at 33% gross margin still earns 18.9% contribution.</td></tr>
+        <tr><td>Gross margin below which trade terms can't be paid</td><td class="r">20%</td><td>Exhibit 2: the RTD range at 16% gross margin earns 1.9% contribution.</td></tr>
+      </table></div></div>
+      <div class="panel"><h3>Weightings</h3><div class="scroll"><table id="wT"></table></div></div>
+    </div>
+    <div class="panel"><h3>Case figures the model uses</h3><div class="scroll"><table>
+      <tr><th>Figure</th><th class="r">Value</th><th>Source</th></tr>
+      <tr><td>Revenue, FY21</td><td class="r">₹560 Cr</td><td>Exhibit 1</td></tr>
+      <tr><td>Revenue CAGR, FY18-21</td><td class="r">4.8%</td><td>Exhibit 1</td></tr>
+      <tr><td>New-product share of revenue, FY21</td><td class="r">4.2%</td><td>Exhibit 1</td></tr>
+      <tr><td>Mar-Jul share of annual volume</td><td class="r">58%</td><td>Exhibit 1</td></tr>
+      <tr><td>Retail outlets reached</td><td class="r">4,50,000</td><td>Exhibit 1</td></tr>
+      <tr><td>Programme budget, 3 years</td><td class="r">₹75 Cr</td><td>Exhibit 1</td></tr>
+      <tr><td>Flagship concentrate MRP</td><td class="r">₹195</td><td>Exhibit 2</td></tr>
+      <tr><td>Flagship concentrate net realisation</td><td class="r">₹147</td><td>Exhibit 2</td></tr>
+      <tr><td>Squash range gross margin</td><td class="r">33%</td><td>Exhibit 2</td></tr>
+      <tr><td>Squash range contribution margin</td><td class="r">18.9%</td><td>Exhibit 2</td></tr>
+      <tr><td>RTD range gross margin</td><td class="r">16%</td><td>Exhibit 2</td></tr>
+      <tr><td>RTD range contribution margin</td><td class="r">1.9%</td><td>Exhibit 2</td></tr>
+      <tr><td>Plant utilisation, Q3 (Oct-Dec)</td><td class="r">34%</td><td>Exhibit 4.1</td></tr>
+      <tr><td>Board target: new-product share by FY24</td><td class="r">30%</td><td>Board mandate (FY22)</td></tr>
+      <tr><td>Board ambition: company revenue by FY24</td><td class="r">₹900 Cr</td><td>Board mandate (FY22)</td></tr>
+    </table></div></div>
+    <div class="panel"><h3>Exhibit 5 as given</h3><div class="scroll"><table id="exT"></table></div></div>
+    <div class="panel"><h3>Next for the deck</h3><ul class="next">
+      <li>Decide how we present premixes: as the fit-led first launch beside spices, or follow the metric and pair spices with RTC mixes.</li>
+      <li>Pick a third category if we want to show a path to the Board's target: RTC mixes if we lead on growth, pickles if we lead on fit.</li>
+      <li>Test the share and reach estimates in the consumer interview and with kirana owners. They move the answer more than anything else here.</li>
+      <li>Then define the offer for each category, the route to market and the budget split.</li>
+    </ul></div>
+    <div class="panel"><h3>Related</h3><p class="note" style="margin:0"><a href="https://claude.ai/artifact/8m7DvmjMwMNyDfwxoNqZCB" target="_blank" rel="noopener">Growth simulator</a> (packs, stage-gate, P&amp;L) · <a href="https://amitg2027-del.github.io/rasmitra-growth-simulator/" target="_blank" rel="noopener">no-login mirror</a> · <a href="https://docs.google.com/spreadsheets/d/1nZSGHXq3_sRKb0EueC1a_8jHta1uloNFJPVZoNb5j6Y/edit?usp=sharing" target="_blank" rel="noopener">Financial model (Google Sheet)</a></p></div>
+  </section>
+</div>
+
+<script>
+const $ = s => document.querySelector(s), css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmtIN = n => Math.round(n).toLocaleString('en-IN');
+const f1 = n => (Math.round(n * 10) / 10).toFixed(1);
+const pc = n => f1(n * 100) + '%';
+
+// ---------- Exhibit 5 ----------
+const CATS = [
+  { k: 'spices', n: 'Spices', full: 'Blended spices & masalas', m: 78000, g: 11, org: .42, ml: 34, mh: 40, cm: 'High', cap: 'Low', adj: 4.4, cs: 'Yes', t: ['Yes', 'Yes', 'Yes'], why: '' },
+  { k: 'pickles', n: 'Pickles', full: 'Pickles, chutneys & condiments', m: 12500, g: 13, org: .38, ml: 38, mh: 45, cm: 'High', cap: 'Low', adj: 4.1, cs: 'Yes', t: ['Yes', 'Yes', 'Yes'], why: '' },
+  { k: 'rtc', n: 'RTC mixes', full: 'Ready-to-cook & instant mixes', m: 9800, g: 17, org: .61, ml: 40, mh: 48, cm: 'High', cap: 'Medium', adj: 3.6, cs: 'Yes', t: ['Yes', 'Yes', 'Yes'], why: '' },
+  { k: 'premix', n: 'Premixes', full: 'Instant beverage premixes (winter)', m: 6400, g: 14, org: .55, ml: 42, mh: 50, cm: 'High', cap: 'Low', adj: 4.6, cs: 'Yes', t: ['Yes', 'Yes', 'Yes'], why: '' },
+  { k: 'staples', n: 'Staples', full: 'Atta, rice & packaged staples', m: 240000, g: 8, org: .18, ml: 4, mh: 8, cm: 'Medium', cap: 'High', adj: 3.9, cs: 'Partly', t: ['Yes', 'Partly', 'No'], why: "Thin margins can't pay general-trade terms, and it needs a plant." },
+  { k: 'namkeen', n: 'Namkeen', full: 'Namkeen & savoury snacks', m: 46000, g: 12, org: .48, ml: 28, mh: 34, cm: 'Medium', cap: 'High', adj: 2.9, cs: 'Yes', t: ['Yes', 'Yes', 'Yes'], why: 'Large and counter-seasonal, but it needs a plant and stretches the brand furthest.' },
+  { k: 'juices', n: 'Juices & RTD', full: 'Packaged juices & RTD', m: 14700, g: 9, org: .72, ml: 22, mh: 28, cm: 'Medium', cap: 'High', adj: 4.7, cs: 'No', t: ['Yes', 'No', 'Partly'], why: 'Closest to the brand, but it sells in the same summer as concentrates and our RTD already loses money.' },
+  { k: 'dairy', n: 'Dairy desserts', full: 'Dairy-based desserts', m: 8900, g: 15, org: .26, ml: 25, mh: 32, cm: 'Low', cap: 'High', adj: 2.4, cs: 'No', t: ['No', 'No', 'Partly'], why: "Needs a chilled route our distributors don't run, and little contract manufacturing exists." },
+];
+const TP = { Yes: 5, Partly: 3, No: 1 }, CMP = { High: 5, Medium: 3, Low: 1 }, CAPP = { Low: 5, Medium: 3, High: 1 };
+const LMIN = Math.log(6400), LMAX = Math.log(240000);
+CATS.forEach(c => {
+  c.dist = (TP[c.t[0]] + TP[c.t[1]] + TP[c.t[2]]) / 3;
+  c.bud = (CMP[c.cm] + CAPP[c.cap]) / 2;
+  c.pass = c.dist >= 4 && c.bud >= 4;
+  c.size = 1 + 4 * (Math.log(c.m) - LMIN) / (LMAX - LMIN);
+  c.grow = 1 + 4 * (c.g - 8) / 9;
+  c.added = c.m * (Math.pow(1 + c.g / 100, 3) - 1);
+  c.outWhy = c.pass ? '' : 'Out: ' + [c.dist < 4 ? 'distributor fit' : '', c.bud < 4 ? 'budget' : ''].filter(Boolean).join(', ');
+});
+const W = {
+  our: { n: 'Our metric', w: [35, 35, 15, 15, 0], s: "Market size and 3-year growth lead; the Board's distributor and budget constraints follow." },
+  size: { n: 'Size-led', w: [50, 20, 15, 15, 0], s: 'Puts more weight on how big the market is today.' },
+  growth: { n: 'Growth-led', w: [20, 50, 15, 15, 0], s: 'Puts more weight on how fast the market grows.' },
+  fit: { n: 'Fit-led, with brand', w: [20, 20, 20, 20, 20], s: "Weights all five equally, adding brand adjacency from the Board's mandate." },
+};
+const SEGC = ['--c-size', '--c-growth', '--c-dist', '--c-budget', '--c-brand'];
+const SEGN = ['Market size', '3-year growth', 'Distributor fit', 'Budget fit', 'Brand adjacency'];
+const parts = (c, w) => [c.size, c.grow, c.dist, c.bud, c.adj].map((v, i) => v * w[i] / 100);
+const score = (c, w) => parts(c, w).reduce((a, b) => a + b, 0);
+const PICKS = ['spices', 'premix'];
+let WK = 'our';
+
+function renderScreen() {
+  const w = W[WK].w;
+  $('#wTxt').textContent = SEGN.map((n, i) => w[i] ? n.replace(' fit', ' fit').replace('3-year growth', '3-year growth') + ' ' + w[i] : '').filter(Boolean).join(' · ');
+  $('#wName').textContent = W[WK].n + ', in points';
+  $('#wNote').textContent = W[WK].s;
+  const list = CATS.map(c => ({ c, s: score(c, w) })).sort((a, b) => (b.c.pass - a.c.pass) || (b.s - a.s));
+  const passing = list.filter(x => x.c.pass);
+  $('#orderTxt').textContent = passing.map((x, i) => (i + 1) + ' ' + x.c.n).join(' · ');
+  let h = '';
+  list.forEach((x, i) => {
+    const c = x.c, pr = parts(c, w);
+    const sub = c.pass ? (PICKS.includes(c.k) ? '<small>Team pick</small>' : '') : `<small class="out">${c.outWhy}</small>`;
+    const segs = c.pass ? pr.map((v, j) => v ? `<i style="width:${v / 5 * 100}%;background:var(${SEGC[j]})"></i>` : '').join('')
+      : `<i style="width:${(pr[0] + pr[1]) / 5 * 100}%;background:var(--c-out)"></i><i style="width:${(pr[2] + pr[3] + pr[4]) / 5 * 100}%;background:var(--c-out);opacity:.55"></i>`;
+    h += `<span class="n ${c.pass ? '' : 'faded'}">${c.pass ? passing.indexOf(x) + 1 : '–'}</span><span class="nm ${c.pass ? '' : 'faded'}">${c.n}${sub}</span><div class="bar">${segs}</div><span class="sc ${c.pass ? '' : 'faded'}">${x.s.toFixed(2)}</span>`;
+  });
+  h += `<span></span><span class="note" style="margin:0">Score out of 5</span><svg viewBox="0 0 500 16" preserveAspectRatio="none" style="width:100%;height:16px;overflow:visible">${[0, 1, 2, 3, 4, 5].map(t => `<text x="${t * 100}" y="12" class="ax" text-anchor="${t === 0 ? 'start' : t === 5 ? 'end' : 'middle'}">${t}</text>`).join('')}</svg><span></span>`;
+  $('#rank').innerHTML = h;
+  $('#rankLeg').innerHTML = SEGN.map((n, i) => w[i] ? `<span style="--sw:var(${SEGC[i]})">${n} &nbsp;${w[i]}</span>` : '').join('');
+  document.querySelectorAll('#wSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === WK));
+}
+document.querySelectorAll('#wSeg button').forEach(b => b.onclick = () => { WK = b.dataset.k; renderScreen(); });
+
+// constraint table
+(function () {
+  const cl = v => v === 'Yes' ? 'y' : v === 'No' ? 'no' : 'p';
+  const order = ['spices', 'rtc', 'pickles', 'premix', 'namkeen', 'staples', 'dairy', 'juices'].map(k => CATS.find(c => c.k === k));
+  let h = '<tr><th>Category</th><th>Ambient kirana route</th><th>Sells outside Mar-Jul</th><th>Margin pays trade terms</th><th class="r">Distributor fit</th><th>Contract mfg</th><th>In-house capex</th><th class="r">Budget fit</th><th>Result</th><th>Why we refuse it</th></tr>';
+  order.forEach(c => {
+    h += `<tr class="${c.pass ? '' : 'faded'}"><td>${PICKS.includes(c.k) ? '<b>' + c.n + '</b>' : c.n}</td>${c.t.map(v => `<td class="${cl(v)}">${v}</td>`).join('')}<td class="r">${c.dist.toFixed(1)}</td><td>${c.cm}</td><td>${c.cap}</td><td class="r">${c.bud.toFixed(1)}</td><td class="${c.pass ? 'y' : 'no'}">${c.pass ? 'Pass' : c.outWhy}</td><td>${c.why}</td></tr>`;
+  });
+  $('#consT').innerHTML = h;
+})();
+
+// bubble chart
+function bubble() {
+  const Wd = 640, H = 330, L = 50, R = 20, T = 30, B = 50;
+  const lx = v => L + (Math.log(v) - Math.log(4000)) / (Math.log(400000) - Math.log(4000)) * (Wd - L - R);
+  const ly = v => T + (18.5 - v) / (18.5 - 6) * (H - T - B);
+  const maxA = Math.max(...CATS.map(c => c.added));
+  const col = { spices: '--c-spices', premix: '--c-premix', rtc: '--c-rtc', pickles: '--c-pickles' };
+  let s = `<svg viewBox="0 0 ${Wd} ${H}" style="width:100%;height:auto" role="img" aria-label="Market size against 3-year growth">`;
+  s += `<text x="${L}" y="16" class="ax">3-year growth</text>`;
+  [6, 8, 10, 12, 14, 16, 18].forEach(v => s += `<line x1="${L}" x2="${Wd - R}" y1="${ly(v)}" y2="${ly(v)}" class="gl"/><text x="${L - 8}" y="${ly(v) + 4}" text-anchor="end" class="ax">${v}%</text>`);
+  [5000, 10000, 20000, 50000, 100000, 200000, 400000].forEach(v => s += `<text x="${lx(v)}" y="${H - B + 18}" text-anchor="middle" class="ax">${fmtIN(v)}</text>`);
+  s += `<text x="${Wd - R}" y="${H - 8}" text-anchor="end" class="ax">Market size FY21, INR Cr (log scale)</text>`;
+  [...CATS].sort((a, b) => b.added - a.added).forEach(c => {
+    const r = 6 + 30 * Math.sqrt(c.added / maxA), x = lx(c.m), y = ly(c.g);
+    const fill = c.pass ? `var(${col[c.k]})` : 'var(--c-out2)';
+    const stroke = PICKS.includes(c.k) ? 'var(--fg)' : c.pass ? 'none' : 'var(--c-out)';
+    s += `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" fill-opacity="${c.pass ? .75 : .7}" stroke="${stroke}" stroke-width="${PICKS.includes(c.k) ? 2 : 1}"/>`;
+    const left = c.k === 'namkeen' || c.k === 'staples' && false;
+    s += `<text x="${left ? x - r - 5 : x + r + 5}" y="${y + 4}" text-anchor="${left ? 'end' : 'start'}" style="font-size:13px;${c.pass ? '' : 'fill:var(--muted)'}">${c.n}</text>`;
+  });
+  $('#bubble').innerHTML = s + '</svg>';
+}
+// sensitivity
+function sens() {
+  const Wd = 640, H = 300, L = 40, R = 90, T = 26, B = 46;
+  const x = v => L + v / 70 * (Wd - L - R), y = v => T + (5 - v) / 3 * (H - T - B);
+  const col = { spices: '--c-spices', premix: '--c-premix', rtc: '--c-rtc', pickles: '--c-pickles' };
+  let s = `<svg viewBox="0 0 ${Wd} ${H}" style="width:100%;height:auto" role="img" aria-label="Score as size points change">`;
+  [2, 2.5, 3, 3.5, 4, 4.5, 5].forEach(v => s += `<line x1="${L}" x2="${Wd - R}" y1="${y(v)}" y2="${y(v)}" class="gl"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" class="ax">${v.toFixed(1)}</text>`);
+  [0, 10, 20, 30, 40, 50, 60, 70].forEach(v => s += `<text x="${x(v)}" y="${H - B + 18}" text-anchor="middle" class="ax">${v}</text>`);
+  s += `<text x="${L}" y="${H - 6}" class="ax">Points on market size; growth gets the rest</text>`;
+  s += `<line x1="${x(35)}" x2="${x(35)}" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="4 3"/><text x="${x(35)}" y="${T - 8}" text-anchor="middle" class="ax">Our metric</text>`;
+  const ends = [];
+  CATS.filter(c => c.pass).forEach(c => {
+    const pts = []; for (let p = 0; p <= 70; p += 2) pts.push([x(p), y(score(c, [p, 70 - p, 15, 15, 0]))]);
+    s += `<polyline points="${pts.map(q => q.join(',')).join(' ')}" fill="none" stroke="var(${col[c.k]})" stroke-width="2"/>`;
+    ends.push({ n: c.n, y: pts[pts.length - 1][1] });
+  });
+  ends.sort((a, b) => a.y - b.y); for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+  ends.forEach(e => s += `<text x="${Wd - R + 6}" y="${e.y + 4}" style="font-size:13px">${e.n}</text>`);
+  $('#sens').innerHTML = s + '</svg>';
+}
+
+// ---------- growth model (team top-down) ----------
+const MK = { spices: 78000, premix: 6400, pickles: 12500, rtc: 9800 }, CG = { spices: .11, premix: .14, pickles: .13, rtc: .17 };
+const ORG = { spices: .42, premix: .55, pickles: .38, rtc: .61 }, SH = { spices: .03, premix: .10, pickles: .05, rtc: .04 };
+const MJ = { spices: 5 / 12, premix: .10, pickles: 5 / 12, rtc: 5 / 12 }, MONTHS = { spices: 12, premix: 5, pickles: 12, rtc: 12 };
+const NR = 147 / 195, NAME = { spices: 'Spices', premix: 'Premixes', pickles: 'Pickles', rtc: 'RTC mixes' };
+const COL = { spices: '--c-spices', premix: '--c-premix', rtc: '--c-rtc', pickles: '--c-pickles' };
+const SC = {
+  Base: { reach: [.08, .08, .08], mult: 1, ramp: { premix: [.3, .75, 1], spices: [.05, .6, .95], third: [0, .15, .75] }, note: 'Launches on plan: premixes for the first winter, spices one quarter later, a third category a year after.' },
+  Stretch: { reach: [.08, .09, .10], mult: 1.5, ramp: { premix: [.3, .75, 1], spices: [.05, .6, .95], third: [0, .15, .75] }, note: 'Same launch dates; half as much share again, and reach grows as we add outlets in Regions 3-4 and quick-commerce.' },
+  Downside: { reach: [.08, .08, .08], mult: .6, ramp: { premix: [0, .3, .75], spices: [0, .25, .75], third: [0, 0, .3] }, note: 'Every launch slips a season and shares come in lower.' },
+};
+const mkt = (c, i) => MK[c] * Math.pow(1 + CG[c], i + 1);
+function model(sc, th, opt = {}) {
+  const p = SC[sc], core = [0, 1, 2].map(i => 536.48 * Math.pow(1.048, i + 1)), today = [0, 1, 2].map(i => 23.52 * Math.pow(1.1, i + 1));
+  const cats = ['premix', 'spices'].concat(th ? [th] : []), L = {};
+  cats.forEach(c => L[c] = [0, 1, 2].map(i => {
+    const reach = opt.reach != null ? opt.reach : p.reach[i], sh = (c === 'spices' && opt.sp != null) ? opt.sp : SH[c];
+    return mkt(c, i) * ORG[c] * reach * NR * sh * p.mult * p.ramp[c === th ? 'third' : c][i];
+  }));
+  const nc = [0, 1, 2].map(i => cats.reduce((a, c) => a + L[c][i], 0)), np = nc.map((v, i) => v + today[i]), tot = np.map((v, i) => v + core[i]);
+  const mj = ((core[2] + today[2]) * .58 + cats.reduce((a, c) => a + L[c][2] * MJ[c], 0)) / tot[2];
+  return { core, today, L, cats, nc, np, tot, share: np.map((v, i) => v / tot[i]), mj };
+}
+let SCN = 'Base', TH = '';
+function seg(el, cb) { el.querySelectorAll('button').forEach(b => b.onclick = () => { el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); cb(b.dataset.v); }); }
+seg($('#scSeg'), v => { SCN = v; renderGrow(); }); seg($('#thSeg'), v => { TH = v; renderGrow(); });
+
+function renderGrow() {
+  const M = model(SCN, TH), need = .3 / .7 * M.core[2], short = need - M.np[2];
+  $('#scNote').textContent = SC[SCN].note;
+  const cagr = Math.pow(M.tot[2] / 560, 1 / 3) - 1;
+  const K = [
+    ['New-product share of revenue, FY24', pc(M.share[2]), 'Target 30% · FY21 4.2%', M.share[2] < .3],
+    ['New-category revenue, FY24', '₹' + f1(M.nc[2]) + ' Cr', 'The target needs ₹' + f1(need - M.today[2]) + ' Cr', false],
+    ['Still short of the target, FY24', short > 0 ? '₹' + f1(short) + ' Cr' : 'On target', 'To close with more share, reach or categories', short > 0],
+    ['Company revenue, FY24', '₹' + f1(M.tot[2]) + ' Cr', 'Board ambition: toward ₹900 Cr', false],
+    ['Revenue growth a year, FY21-24', pc(cagr), 'FY18-21: 4.8%', false],
+    ['Revenue earned Mar-Jul', pc(M.mj), 'FY21: 58% of volume', false]];
+  $('#kpis').innerHTML = K.map(k => `<div class="kpi"><div class="l">${k[0]}</div><div class="v ${k[3] ? 'bad' : ''}">${k[1]}</div><div class="s">${k[2]}</div></div>`).join('');
+
+  // stacked revenue chart
+  const series = [['Today\'s new products', '--c-today', [23.52].concat(M.today)]].concat(['premix', 'spices'].concat(TH ? [TH] : []).map(c => [NAME[c], COL[c], [0].concat(M.L[c])]));
+  const Wd = 760, H = 300, Lm = 40, R = 20, T = 20, B = 34, ymax = 300;
+  const y = v => T + (1 - v / ymax) * (H - T - B), bw = 104, xs = i => Lm + (i + .5) * (Wd - Lm - R) / 4;
+  let s = `<svg viewBox="0 0 ${Wd} ${H}" style="width:100%;height:auto" role="img" aria-label="New-product revenue by year">`;
+  [0, 50, 100, 150, 200, 250, 300].forEach(v => s += `<line x1="${Lm}" x2="${Wd - R}" y1="${y(v)}" y2="${y(v)}" class="gl"/><text x="${Lm - 8}" y="${y(v) + 4}" text-anchor="end" class="ax">${v}</text>`);
+  ['FY21', 'FY22', 'FY23', 'FY24'].forEach((lab, i) => {
+    let acc = 0;
+    series.forEach(sr => { const v = sr[2][i]; if (v > 0) { s += `<rect x="${xs(i) - bw / 2}" y="${y(acc + v)}" width="${bw}" height="${y(acc) - y(acc + v)}" fill="var(${sr[1]})"/>`; acc += v; } });
+    s += `<text x="${xs(i)}" y="${y(acc) - 6}" text-anchor="middle" style="font-size:12.5px">${f1(acc)}</text><text x="${xs(i)}" y="${H - 12}" text-anchor="middle" class="ax">${lab}</text>`;
+  });
+  s += `<line x1="${xs(3) - bw / 2}" x2="${xs(3) + bw / 2 + 6}" y1="${y(need)}" y2="${y(need)}" stroke="var(--muted)" stroke-dasharray="4 3"/><text x="${xs(3) - bw / 2 - 6}" y="${y(need) + 4}" text-anchor="end" class="ax">30% needs ${f1(need)}</text>`;
+  $('#revChart').innerHTML = s + '</svg>';
+  $('#revLeg').innerHTML = series.map(sr => `<span style="--sw:var(${sr[1]})">${sr[0]}</span>`).join('');
+
+  // share lines
+  const W2 = 520, H2 = 300, L2 = 40, R2 = 110, T2 = 16, B2 = 34, y2 = v => T2 + (1 - v / .35) * (H2 - T2 - B2), x2 = i => L2 + i / 3 * (W2 - L2 - R2);
+  let s2 = `<svg viewBox="0 0 ${W2} ${H2}" style="width:100%;height:auto" role="img" aria-label="New-product share by scenario">`;
+  [0, .05, .1, .15, .2, .25, .3, .35].forEach(v => s2 += `<line x1="${L2}" x2="${W2 - R2}" y1="${y2(v)}" y2="${y2(v)}" class="gl"/><text x="${L2 - 6}" y="${y2(v) + 4}" text-anchor="end" class="ax">${Math.round(v * 100)}%</text>`);
+  s2 += `<line x1="${L2}" x2="${W2 - R2}" y1="${y2(.3)}" y2="${y2(.3)}" stroke="var(--fg)" stroke-dasharray="4 3"/><text x="${L2 + 4}" y="${y2(.3) - 6}" class="ax">Board target 30%</text>`;
+  ['FY21', 'FY22', 'FY23', 'FY24'].forEach((l, i) => s2 += `<text x="${x2(i)}" y="${H2 - 12}" text-anchor="middle" class="ax">${l}</text>`);
+  const lab = [];
+  ['Stretch', 'Base', 'Downside'].forEach(k => {
+    const m = model(k, TH), v = [.042].concat(m.share), on = k === SCN, pts = v.map((q, i) => [x2(i), y2(q)]);
+    s2 += `<polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="${on ? 'var(--c-spices)' : 'var(--c-today)'}" stroke-width="${on ? 2.5 : 1.5}"/>`;
+    if (on) pts.forEach(p => s2 += `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="var(--c-spices)"/>`);
+    lab.push({ t: k + ' ' + pc(v[3]), y: pts[3][1], on });
+  });
+  lab.sort((a, b) => a.y - b.y); for (let i = 1; i < lab.length; i++) if (lab[i].y - lab[i - 1].y < 15) lab[i].y = lab[i - 1].y + 15;
+  lab.forEach(l => s2 += `<text x="${W2 - R2 + 8}" y="${l.y + 4}" style="font-size:12.5px;${l.on ? 'font-weight:600' : 'fill:var(--muted)'}">${l.t}</text>`);
+  $('#shareChart').innerHTML = s2 + '</svg>';
+
+  // chips
+  const p = SC[SCN];
+  $('#chips').innerHTML = ['spices', 'premix'].concat(TH ? [TH] : []).map(c => {
+    const ramp = p.ramp[c === TH ? 'third' : c][2];
+    const v = [['₹' + fmtIN(mkt(c, 2)) + ' Cr', 'Market'], [Math.round(ORG[c] * 100) + '%', 'Organised share'], [Math.round(p.reach[2] * 100) + '%', 'Our reach'], [f1(NR * 100) + '%', 'Net realisation'], [Math.round(SH[c] * 100) + '%', 'Our share'], [p.mult.toFixed(1), 'Scenario multiplier'], [Math.round(ramp * 100) + '%', 'Launch ramp']];
+    return `<div class="eb" style="margin-top:6px">${NAME[c]}, FY24</div><div class="chips">${v.map((q, i) => `<span class="chip"><b>${q[0]}</b><small>${q[1]}</small></span>${i < 6 ? '<span class="op">×</span>' : ''}`).join('')}<span class="op">=</span><span class="chip res"><b>₹${f1(M.L[c][2])} Cr</b><small>Revenue</small></span></div>`;
+  }).join('');
+
+  // line table
+  let lt = '<tr><th>Line</th><th class="r">FY22</th><th class="r">FY23</th><th class="r">FY24</th><th class="r">Share of national market, FY24</th><th class="r">Sales per stocking outlet a month, MRP</th></tr>';
+  lt += `<tr><td>Core business</td>${M.core.map(v => `<td class="r">${f1(v)}</td>`).join('')}<td></td><td></td></tr>`;
+  lt += `<tr><td>Today's new products</td>${M.today.map(v => `<td class="r">${f1(v)}</td>`).join('')}<td></td><td></td></tr>`;
+  M.cats.forEach(c => { const mrp = M.L[c][2] / NR; lt += `<tr><td><b>${NAME[c]}</b></td>${M.L[c].map(v => `<td class="r">${f1(v)}</td>`).join('')}<td class="r">${(mrp / mkt(c, 2) * 100).toFixed(2)}%</td><td class="r">₹${fmtIN(mrp * 1e7 / (450000 * .5) / MONTHS[c])}</td></tr>`; });
+  $('#lineT').innerHTML = lt;
+  $('#coRev').textContent = `Company revenue: FY22 ₹${f1(M.tot[0])} Cr · FY23 ₹${f1(M.tot[1])} Cr · FY24 ₹${f1(M.tot[2])} Cr.`;
+}
+
+function renderStatic() {
+  // market growth
+  const rows = [...CATS].sort((a, b) => b.added - a.added), mx = rows[0].added;
+  const cc = { spices: '--c-spices', premix: '--c-premix', rtc: '--c-rtc', pickles: '--c-pickles' };
+  let h = '<tr><th>Category</th><th class="r">CAGR</th><th class="r">FY21</th><th class="r">FY22</th><th class="r">FY23</th><th class="r">FY24</th><th class="r">Added by FY24</th></tr>';
+  rows.forEach(c => { const v = [0, 1, 2, 3].map(i => c.m * Math.pow(1 + c.g / 100, i)); h += `<tr class="${c.pass ? '' : 'faded'}"><td>${c.n}</td><td class="r">${c.g}%</td>${v.map(q => `<td class="r">${fmtIN(q)}</td>`).join('')}<td class="r"><span class="mini"><i style="width:${Math.max(4, c.added / mx * 100)}%;background:var(${c.pass ? cc[c.k] : '--c-out'})"></i></span>${fmtIN(c.added)}</td></tr>`; });
+  $('#mktT').innerHTML = h;
+  // one point
+  const pts = ['spices', 'rtc', 'pickles', 'premix'].map(c => [c, mkt(c, 2) * ORG[c] * .08 * NR * .01]).sort((a, b) => b[1] - a[1]);
+  $('#pointT').innerHTML = pts.map(p => `<div class="pt"><span>${NAME[p[0]]}</span><span><i style="width:${p[1] / pts[0][1] * 100}%;background:var(${COL[p[0]]})"></i></span><span style="text-align:right">₹${f1(p[1])} Cr</span></div>`).join('');
+  // grid
+  const reaches = [.06, .08, .1, .12], shares = [.02, .03, .04, .05, .06, .07, .08];
+  let g = '<tr><th style="text-align:right">Spices share ↓ Reach →</th>' + reaches.map(r => `<th>${Math.round(r * 100)}%</th>`).join('') + '</tr>';
+  shares.forEach(sp => {
+    g += `<tr><td class="rl">${Math.round(sp * 100)}%</td>` + reaches.map(r => {
+      const v = model('Base', '', { reach: r, sp }).share[2], lvl = v >= .3 ? 'var(--cell3)' : v >= .24 ? 'var(--cell2)' : v >= .18 ? 'var(--cell1)' : 'var(--cell0)';
+      const base = sp === .03 && r === .08;
+      return `<td class="${v >= .3 ? 'hit' : ''}" style="background:${lvl}">${pc(v)}${base ? ' <small style="color:var(--muted)">base</small>' : ''}</td>`;
+    }).join('') + '</tr>';
+  });
+  $('#gridT').innerHTML = g;
+  const needSp = r => { const b = model('Base', '', { reach: r }), need = .3 / .7 * b.core[2], per = b.L.spices[2] / .03; return (need - b.today[2] - b.L.premix[2]) / per; };
+  $('#gridNote').innerHTML = `With premixes at its base share and no third category, spices needs <b>${f1(needSp(.08) * 100)}%</b> of branded sales in our outlets at today's reach of 8%, or <b>${f1(needSp(.1) * 100)}%</b> if reach grows to 10%. Our base case assumes 3%.`;
+  // assumptions tables
+  let st = '<tr><th>Scenario</th><th>Year</th><th class="r">Our reach</th><th class="r">Share multiplier</th><th class="r">Premixes ramp</th><th class="r">Spices ramp</th><th class="r">Third category ramp</th></tr>';
+  Object.entries(SC).forEach(([k, p]) => ['FY22', 'FY23', 'FY24'].forEach((yr, i) => st += `<tr><td>${k}</td><td>${yr}</td><td class="r">${Math.round(p.reach[i] * 100)}%</td><td class="r">${p.mult.toFixed(1)}</td><td class="r">${Math.round(p.ramp.premix[i] * 100)}%</td><td class="r">${Math.round(p.ramp.spices[i] * 100)}%</td><td class="r">${Math.round(p.ramp.third[i] * 100)}%</td></tr>`));
+  $('#scT').innerHTML = st;
+  $('#wT').innerHTML = '<tr><th>Weighting</th><th class="r">Size</th><th class="r">Growth</th><th class="r">Distributor</th><th class="r">Budget</th><th class="r">Brand</th><th>What it stresses</th></tr>' + Object.values(W).map(w => `<tr><td>${w.n}</td>${w.w.map(v => `<td class="r">${v}</td>`).join('')}<td>${w.s}</td></tr>`).join('');
+  const exOrder = ['spices', 'pickles', 'rtc', 'premix', 'staples', 'namkeen', 'juices', 'dairy'].map(k => CATS.find(c => c.k === k));
+  $('#exT').innerHTML = '<tr><th>Category</th><th class="r">Market, INR Cr</th><th class="r">3-yr CAGR</th><th class="r">Organised</th><th class="r">Margin low</th><th class="r">Margin high</th><th>Contract mfg</th><th>In-house capex</th><th class="r">Adjacency</th><th>Counter-seasonal</th></tr>' +
+    exOrder.map(c => `<tr><td>${c.full}</td><td class="r">${fmtIN(c.m)}</td><td class="r">${c.g}%</td><td class="r">${Math.round(c.org * 100)}%</td><td class="r">${c.ml}%</td><td class="r">${c.mh}%</td><td>${c.cm}</td><td>${c.cap}</td><td class="r">${c.adj.toFixed(1)}</td><td>${c.cs}</td></tr>`).join('');
+}
+
+// tabs, with #anchor deep links
+const TABS = ['play', 'growth', 'assumptions'];
+function show(id) {
+  TABS.forEach(t => { $('#' + t).hidden = t !== id; $('#t-' + t).setAttribute('aria-selected', t === id); });
+  try { history.replaceState(null, '', '#' + id); } catch (e) { }
+}
+TABS.forEach(t => $('#t-' + t).onclick = () => show(t));
+renderScreen(); bubble(); sens(); renderGrow(); renderStatic();
+const h0 = (location.hash || '').slice(1); if (TABS.includes(h0)) show(h0);
+</script>
+
+</body>
+</html>
